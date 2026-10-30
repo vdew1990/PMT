@@ -27,7 +27,9 @@ These existed before the team. Nola can onboard them into proper members (name, 
 
 ## How a hire happens
 
-Atlas brief to Nola. Atlas runs Owen for a role profile and hands it to Nola (Nola cannot launch agents). Nola then writes `team/<name>.md` (from `team/_template.md`), adds the agent stub and updates this roster, then reports back to Atlas. Everything is committed on a branch for Vincent to review.
+It begins with a need check: Atlas asks Vincent whether a new role is needed at all (an existing member, Atlas or the decision maker, currently SENTRY-BOT, might handle it, or the job may be a one-off), with a recommendation. Nothing proceeds without Vincent's confirmation. Nola repeats the check in writing at the top of her report (Step 0 in `team/nola.md`) and creates nothing unless the answer is clearly "hire".
+
+Once the need is confirmed: Atlas brief to Nola. Atlas runs Owen for a role profile and hands it to Nola (Nola cannot launch agents). Nola then writes `team/<name>.md` (from `team/_template.md`), adds the agent stub and updates this roster, then reports back to Atlas. Everything is committed on a branch for Vincent to review.
 
 ## Rules for everyone
 
