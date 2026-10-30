@@ -348,7 +348,7 @@ def var_duplicate(pid: int, vid: int, body: dict, con=Depends(get_con)):
         made = variations.duplicate_cbs(con, pid, vid, body.get("node_ids") or [], only_used=body.get("mode") == "used")
     except ValueError as e:
         raise services.Problem(str(e))
-    from . import pronto as pronto_mod
+    from .. import pronto as pronto_mod
     pronto_mod.resolve_all(con, pid)  # Pronto cost already coded to this variation moves onto the copies
     return dict(variations.funding_plan(con, pid, vid), created=len(made))
 
