@@ -13,7 +13,7 @@ You can also address any member by name ("Nola, ...", "Owen, ..."); Atlas then h
 | Owen | Senior Researcher: profiles what skilled humans do in a role | `team/owen.md` | `.claude/agents/owen.md` |
 | Neo | Senior Backend Engineer: Python, FastAPI, SQLite, sync and calculation correctness | `team/neo.md` | `.claude/agents/neo.md` |
 | Finn | Senior Front-End Engineer and UX: plain JavaScript, grids, accessibility | `team/finn.md` | `.claude/agents/finn.md` |
-| Raven | Project Controls and Cost Control Specialist: reviews cost and commercial logic (read-only) | `team/raven.md` | `.claude/agents/raven.md` |
+| Zoe | Project Controls and Cost Control Specialist: reviews cost and commercial logic (read-only) | `team/zoe.md` | `.claude/agents/zoe.md` |
 
 ### Legacy helpers (not yet onboarded)
 

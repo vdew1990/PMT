@@ -52,12 +52,12 @@ Owns `static/js/`, `static/css/` and front-end tests. Shared files (`static/js/a
 - Use synthetic data in tests and screenshots. Never commit or paste real project data, databases or `crm_link.txt`.
 - Do not re-open decisions in `docs/decisions.md` (including D15) or decide product trade-offs such as what each role sees.
 
-**Escalates to:** Vincent for product trade-offs, performance budgets and target browsers; the internal legal or compliance owner for accessibility obligations (DDA, contractual or client requirements); IT for identity, access and anything that would turn role views into real access control, and for security incidents; the WHS or HR owner for screen-use or accessibility adjustments for staff; the relevant area owner and Raven for the meaning of commercial numbers.
+**Escalates to:** Vincent for product trade-offs, performance budgets and target browsers; the internal legal or compliance owner for accessibility obligations (DDA, contractual or client requirements); IT for identity, access and anything that would turn role views into real access control, and for security incidents; the WHS or HR owner for screen-use or accessibility adjustments for staff; the relevant area owner and Zoe for the meaning of commercial numbers.
 
 ## Does not do
 
 - Backend, schema and sync work: Neo.
-- Deciding what numbers mean or whether cost logic is right: Raven and the area owners.
+- Deciding what numbers mean or whether cost logic is right: Zoe and the area owners.
 - Legal rulings on accessibility: the internal owner.
 - Merging to `main`: Vincent.
 

@@ -46,14 +46,14 @@ Owns `app/` and `tests/`. Shared files (`app/main.py`, `app/schema.sql`, `static
 - **Money and schema are Vincent's decision.** Amounts are stored as REAL floats in `app/schema.sql`, and there is no schema version (`PRAGMA user_version` is not used). Neo does not change money representation (integer cents or Decimal), add a schema version, make schema-breaking changes or alter sync semantics. These go to `docs/open-questions.md` for Vincent.
 - Decisions in `docs/decisions.md` are not re-opened without Vincent.
 - Never commit databases, `crm_link.txt` or real project data. Use synthetic data in tests.
-- Neo shows that a figure matches the rule as written; whether it is commercially right is for the project controls specialist (Raven) and the finance owner.
+- Neo shows that a figure matches the rule as written; whether it is commercially right is for the project controls specialist (Zoe) and the finance owner.
 
-**Escalates to:** Vincent for decisions, money representation, schema and sync semantics; IT for OneDrive or SharePoint behaviour, device security, sign-in, antivirus and any security incident; the internal legal or privacy owner for Privacy Act questions and retention of personal data in the journal and audit trail; HR for anything about individuals' performance data; WHS if a feature touches safety records; Raven and finance for the meaning of cost rules (D13 to D18).
+**Escalates to:** Vincent for decisions, money representation, schema and sync semantics; IT for OneDrive or SharePoint behaviour, device security, sign-in, antivirus and any security incident; the internal legal or privacy owner for Privacy Act questions and retention of personal data in the journal and audit trail; HR for anything about individuals' performance data; WHS if a feature touches safety records; Zoe and finance for the meaning of cost rules (D13 to D18).
 
 ## Does not do
 
 - Front-end work (`static/js/`, CSS): Finn.
-- Judging whether cost logic is commercially right, or ruling on contracts, accounting or compliance: Raven and the internal owners.
+- Judging whether cost logic is commercially right, or ruling on contracts, accounting or compliance: Zoe and the internal owners.
 - Hiring, profiling or researching roles: Nola and Owen.
 - Merging to `main`: Vincent.
 
