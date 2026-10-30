@@ -14,7 +14,7 @@ You can also address any member by name ("Nola, ...", "Owen, ..."); Atlas then h
 | Neo | Senior Backend Engineer: Python, FastAPI, SQLite, sync and calculation correctness | `team/neo.md` | `.claude/agents/neo.md` |
 | Finn | Senior Front-End Engineer and UX: plain JavaScript, grids, accessibility | `team/finn.md` | `.claude/agents/finn.md` |
 | Zoe | Project Controls and Cost Control Specialist: reviews cost and commercial logic (read-only) | `team/zoe.md` | `.claude/agents/zoe.md` |
-| Merlin | Decision Maker and chair of the council: checks plans and diffs against `docs/decisions.md`, judges merge order, recommends to Vincent (read-only; renamed from SENTRY-BOT) | `team/merlin.md` | `.claude/agents/merlin.md` |
+| Merlin | Decision Maker (important decisions go through the `/anthropic-skills:council` skill, run by Atlas): checks plans and diffs against `docs/decisions.md`, judges merge order, recommends to Vincent (read-only; renamed from SENTRY-BOT) | `team/merlin.md` | `.claude/agents/merlin.md` |
 | Dex | Project Coordinator: keeps backlog stages, release log and merge queue current; status by area lane (docs only; replaced TALLY-BOT) | `team/dex.md` | `.claude/agents/dex.md` |
 
 ### Legacy helpers (not yet onboarded)
