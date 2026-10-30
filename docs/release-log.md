@@ -99,6 +99,7 @@ One section per release, newest at the end. Add one line per release here, nothi
 - 2026-10-30.118 personal account: PM competency by complexity dimension against what the baseline asks (Complexity Matrix levels); director only; zip not yet sent.
 - 2026-10-31.119 personal account: Project Director and above see the baseline; PM level independent of the ECF level; leaving date and serving notice on the person; org chart loaded from the skill chart; duplicates and merge; paper sign-off block; data objects catalogue; My profile; zip not yet sent.
 - 2026-10-27.110 personal account: outline strip for every month and day grid (folded quarters, months, weeks take no width; rings and dots bring them back; 1 2 (3) level buttons); zip not yet sent.
+- Unreleased, branch `platform/split-main-routers` (Neo): `app/main.py` split into per-area routers under `app/routers/` (345 routes in `platform`, `setup`, `pmo`, `revenue`, `cost`; shared helpers in `_shared.py`; `main.py` now 92 lines). No change to paths, responses or behaviour; `app/build.py` now also fingerprints `app/routers/*.py`; route inventory test added (354 tests pass).
 
 ## Release 2026-10-21.52
 - Project setup: Back/Save/Next footer on every step with an unsaved-changes prompt (dirty tracking exists only on the Project step; other steps store edits as they are made, so Save just confirms). Per-step templates via `/template.xlsx?step=contract|cbs|programme|project` (`templates_io.STEP_SHEETS`). Schedule step has the drop zones (`scheduleDrop(onDone, layer)` in programme.js).

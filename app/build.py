@@ -13,7 +13,7 @@ _cache = {"at": 0.0, "fp": None}
 
 
 def _files():
-    return sorted([*ROOT.glob("app/*.py"), *ROOT.glob("app/*.sql"), *ROOT.glob("static/**/*.js"), *ROOT.glob("static/**/*.css"),
+    return sorted([*ROOT.glob("app/*.py"), *ROOT.glob("app/routers/*.py"), *ROOT.glob("app/*.sql"), *ROOT.glob("static/**/*.js"), *ROOT.glob("static/**/*.css"),
                    ROOT / "static" / "index.html", ROOT / "requirements.txt"])
 
 

@@ -25,5 +25,5 @@ Short state page. The detail lives in `docs/`; this file stays under about one p
 1. Work on a branch named for the item (for example `cost/ledger-pivot`), never on `main`. Open a pull request when asked.
 2. Read `docs/decisions.md` and the backlog rows for your area first. Do not read the whole of `docs/threads.md` or `docs/release-log.md`.
 3. When a unit of work lands, in the same turn: set its backlog stage, add one line to `docs/release-log.md`, and bump the bundle version above only on merge to `main`.
-4. Changes to `app/main.py`, `app/schema.sql`, `static/js/app.js` or `static/js/ui.js` are kept small and merged early; say so in the branch name or pull request.
+4. Routes are in `app/routers/<area>.py` (see `docs/areas.md`); changes to `app/main.py`, `app/routers/_shared.py`, `app/schema.sql`, `static/js/app.js` or `static/js/ui.js` are kept small and merged early; say so in the branch name or pull request.
 5. Working agreement with Vincent: batch findings, confirm the plan, wait for "go", one build and one test run per batch, zip only on request.
