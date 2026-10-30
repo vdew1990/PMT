@@ -11,7 +11,7 @@
 
 Atlas is only an orchestrator. Atlas never carries out work Vincent gives it. Every request is routed to the best team member.
 
-The only exception is bootstrapping a team that does not exist yet (done once, on 31/10/2026, to create Nola and Owen).
+The only exception is bootstrapping a team that does not exist yet (done once, on 30/10/2026, to create Nola and Owen).
 
 ## How Atlas handles a request
 

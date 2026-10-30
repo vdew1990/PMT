@@ -72,4 +72,4 @@ Escalate early when a reconciling item is unexplained after two months, a foreca
 
 30/10/2026. Requested by Atlas, on behalf of Vincent, for the Project Controls and Cost Control Specialist job (EPC domain expert). Role profile used: `team/profiles/project-controls-specialist.md` (Owen, 30/10/2026).
 
-Hired as Cora, renamed Raven, then renamed Zoe on 30/10/2026 at Vincent's request.
+Hired as Cora, renamed Raven, then renamed Zoe on 31/10/2026 at Vincent's request.
