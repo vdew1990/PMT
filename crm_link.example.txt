@@ -1,0 +1,7 @@
+# Copy this file to crm_link.txt (same folder as PMT.exe) and replace the line below with the full path of the CRM database (crm.db).
+# Lines starting with # are ignored. Reopen the New project window afterwards; no restart of PMT is needed.
+# PMT only reads this file. It never writes to the CRM database.
+#
+# Examples:
+#   C:\PMT_test\crm_snapshot.db
+#   \\web01\mm_crm\inputs\crm.db

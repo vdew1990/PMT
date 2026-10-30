@@ -1,0 +1,358 @@
+{
+ "EPEC-PD-FR-0009": [
+  {
+   "no": "1",
+   "title": "External Permits and Approvals",
+   "items": [
+    "Regulatory approvals obtained",
+    "Building/ Operational Works permits approved",
+    "Excavation permits obtained",
+    "Traffic Management permits obtained",
+    "Environmental permits, approvals obtained",
+    "Other"
+   ]
+  },
+  {
+   "no": "2",
+   "title": "Plans, Registers, Processes Available",
+   "items": [
+    "Project Management Plan",
+    "Contract Mgt Plan (head contract)",
+    "Construction Mgt Plan",
+    "Communications Mgt Plan",
+    "Procurement Mgt Plan/Strategy/Schedule",
+    "Risk Mgt Plan",
+    "Design Mgt Plan",
+    "Environmental Mgt Plan",
+    "Health and Safety Mgt Plan",
+    "Human Resources Mgt Plan/Org Chart",
+    "Quality Mgt Plan",
+    "Stakeholder Mgt Plan",
+    "Emergency Response Plan (may be included in H&S MP \u2013 or reference made to Client\u2019s ERP, as applicable for the site)",
+    "Traffic Management Plan",
+    "Work Packs (Work Files) are prepared"
+   ]
+  },
+  {
+   "no": "3",
+   "title": "Subcontracts",
+   "items": [
+    "Subcontractor Mgt Process is in place",
+    "Subcontractor approval gain by client (if contract requires)",
+    "Subcontracts awarded, in process as required",
+    "Subcontractors trained & accredited as required",
+    "Site specific Subcontractor Mgt Plan is in place",
+    "Confirm current insurances are available and SWMS are reviewed and approved by EPEC & client."
+   ]
+  },
+  {
+   "no": "4",
+   "title": "Material",
+   "items": [
+    "Bill of Material (BOM) is finalised and approved",
+    "Long Lead items in stock or on order per schedule",
+    "All required FAT completed and results/ reports available.",
+    "Material in stock or on order per schedule",
+    "Plant & Equipment planned, certified, current"
+   ]
+  },
+  {
+   "no": "5",
+   "title": "Site",
+   "items": [
+    "Date of possession or access of site is established",
+    "Site mobilisation plan is developed and approved",
+    "Site access and security plans are available",
+    "On site laydown/ warehousing is in place",
+    "Site office/s and amenities in place",
+    "IT access to internet and cellular networks established",
+    "Site risk analysis is complete",
+    "Site Tooling is in place",
+    "Test and Tag completed/ planned",
+    "Site Signage in place",
+    "Site specific inductions and medicals (if required) complete",
+    "Are tablet devices set up with Salus for safety and GoFormz for QA"
+   ]
+  },
+  {
+   "no": "6",
+   "title": "Cost Management System",
+   "items": [
+    "Cost Management Tool (CMT) set up and in alignment with the approved estimate",
+    "All cost categories and CBS have been established",
+    "Risk and contingency costs have been reviewed and understood"
+   ]
+  },
+  {
+   "no": "7",
+   "title": "Commercial",
+   "items": [
+    "Contract Admin Plan (CAP) is reviewed and understood",
+    "Variations included in contract documents",
+    "Contract requirements reviewed in full & understood",
+    "Scope clear and unambiguous",
+    "Have all pre-mobilisation contractual requirements been met",
+    "Has a claim schedule been set up and agreed with the Client"
+   ]
+  },
+  {
+   "no": "8",
+   "title": "Engineering",
+   "items": [
+    "Issued for construction (IFC) designs complete",
+    "Design change process is agreed",
+    "Detailed design documentation is available",
+    "Signed drawings are available for construction",
+    "Design team is available"
+   ]
+  },
+  {
+   "no": "9",
+   "title": "Communication",
+   "items": [
+    "Construction Kick Off Mtg with Client is complete",
+    "Internal / External Communications matrix established and distributed",
+    "Stakeholders consulted/advised of status",
+    "Community aware, consulted, advised",
+    "Communication tools in place, being implemented",
+    "Regulatory bodies, EPA, other notified (OWP)",
+    "Stakeholder Relations support coordinated",
+    "NSP consulted and approval processes understood (for outages and access)"
+   ]
+  },
+  {
+   "no": "10",
+   "title": "Human Resources",
+   "items": [
+    "Skills requirements analysis is complete and competency matrix established",
+    "Resourcing schedule established and staff are available to start work; are allocated",
+    "Training Plan is in place",
+    "Industrial Relations Mgt Plan in place",
+    "Induction Packages are developed and available",
+    "Key Positions are filled"
+   ]
+  },
+  {
+   "no": "11",
+   "title": "Safety & Security",
+   "items": [
+    "Site Security has been established",
+    "Access Passes/ locks & keys are available (as required)",
+    "Emergency response requirements are understood",
+    "Safe Work Method Statements are developed and approved by the Client",
+    "All project personnel are inducted into safety systems"
+   ]
+  },
+  {
+   "no": "12",
+   "title": "Project Management",
+   "items": [
+    "Schedule baseline is established",
+    "Budget baseline is established",
+    "Scope baseline is established",
+    "Engineering interface is established",
+    "Key issues in Issues Register",
+    "Feedback mechanisms are in place",
+    "Project reporting process is in place (including PMR set up)",
+    "List of Deliverable Items is in place"
+   ]
+  }
+ ],
+ "EPEC-PD-FR-0010": [
+  {
+   "no": "1",
+   "title": "Previous Minutes",
+   "items": []
+  },
+  {
+   "no": "2",
+   "title": "Scope",
+   "items": [
+    "Personnel & Scope",
+    "Sub-Subcontractors",
+    "Programme & Timing",
+    "EPEC Supervision",
+    "Highlights & Areas of Concern"
+   ]
+  },
+  {
+   "no": "3",
+   "title": "Insurances",
+   "items": [
+    "Construction insurance available (Client or EPEC to hold?)",
+    "All other insurances required by the contract in place (PI, PL, Motor vehicle, Work Cover, etc.)"
+   ]
+  },
+  {
+   "no": "4",
+   "title": "Project Plans",
+   "items": [
+    "Quality / Organisation Chart",
+    "Safety Plan & Statistics",
+    "Procedures & Systems"
+   ]
+  },
+  {
+   "no": "5",
+   "title": "Industrial Relations",
+   "items": [
+    "Consent Award / EBA",
+    "RDO\u2019s & Lockdowns Identified Impact on Program"
+   ]
+  },
+  {
+   "no": "6",
+   "title": "Safety",
+   "items": [
+    "Review of Project Monthly HSE Report",
+    "Inductions",
+    "Confined Space Requirements (Identify, Training, Procedures)",
+    "Plant and Equipment (Air Quality Procedure)",
+    "Personal and Equipment (Air Quality Procedure)",
+    "Safety Forms / system ready",
+    "Incident Planning/Management"
+   ]
+  },
+  {
+   "no": "7",
+   "title": "Logistics And Spatial Requirements",
+   "items": [
+    "Access / Available Room / Installation Process",
+    "Unloading And lifting",
+    "Deliveries And Laydown Areas",
+    "Traffic Plans and Routes",
+    "Cribbing and Facilities",
+    "Temporary Lighting and Power"
+   ]
+  },
+  {
+   "no": "8",
+   "title": "Environmental & Community Considerations And Documentation",
+   "items": [
+    "Issues",
+    "Forms"
+   ]
+  },
+  {
+   "no": "9",
+   "title": "Installation Planning And Methodology",
+   "items": [
+    "Methodology established",
+    "Inspection & Testing FAT & SAT requirements"
+   ]
+  },
+  {
+   "no": "10",
+   "title": "Other Business",
+   "items": []
+  }
+ ],
+ "EPEC-PD-FR-0012": [
+  {
+   "no": "1",
+   "title": "Approvals",
+   "items": [
+    "Permit to Work is approved",
+    "License to operate is in place",
+    "NSP outage requirements understood, and approval process being followed (if required)",
+    "Client approvals and LOTO/HVIA process is understood and being followed (if required)",
+    "Other (dates approved?)"
+   ]
+  },
+  {
+   "no": "2",
+   "title": "Inspections & Tests",
+   "items": [
+    "Inspection & Test Plans (ITPs) are available on site",
+    "Troubleshooting guides are available",
+    "Pre-Commissioning Inspection & Testing is Complete",
+    "FAT results are documented and available",
+    "Test results were reviewed by Commissioning Mgr"
+   ]
+  },
+  {
+   "no": "3",
+   "title": "Construction Efforts",
+   "items": [
+    "System & Equipment Configuration is documented and complete",
+    "Omissions & Defects Report - printed out and reviewed",
+    "Omissions & Defects - ALL significant items are corrected",
+    "Punch List printed out and reviewed",
+    "Punch List - ALL significant items are corrected.",
+    "Construction activities are complete"
+   ]
+  },
+  {
+   "no": "4",
+   "title": "Staffing",
+   "items": [
+    "Commissioning scope of work is defined & documented",
+    "Allocation of staff to tasks has been completed",
+    "All commissioning staff are qualified, and skills are correct",
+    "Subcontractor support is coordinated"
+   ]
+  },
+  {
+   "no": "5",
+   "title": "Material",
+   "items": [
+    "Spare and repair parts are in stock on site",
+    "Miscellaneous parts are in stock on site",
+    "All required tools and test equipment are available"
+   ]
+  },
+  {
+   "no": "6",
+   "title": "Safety & Security",
+   "items": [
+    "Safe Work Method Statements are up to date",
+    "Danger tags, stickers, and locks are fitted",
+    "Temporary fencing / barricades available",
+    "All Commissioning tasks were reviewed for safety criteria",
+    "Medical & LV rescue kits are available",
+    "Pre-Commissioning Safety briefings have occurred"
+   ]
+  },
+  {
+   "no": "7",
+   "title": "Documentation",
+   "items": [
+    "Approved drawings and as-builts are available.",
+    "Construction Certification and other QA doc on file",
+    "Manufacturing Data Records (MDR) are available on site",
+    "Operations and Maintenance Manuals are available on site",
+    "Work Packages/Files are complete for construction"
+   ]
+  },
+  {
+   "no": "8",
+   "title": "Communications",
+   "items": [
+    "Stakeholder Consultation actions are complete",
+    "Stakeholders informed of project status",
+    "A Pre-Commissioning Meeting is planned",
+    "Coordination is ongoing with Agencies & Regulators",
+    "Asset Owner and Operators are briefed",
+    "On-site communications organised"
+   ]
+  },
+  {
+   "no": "9",
+   "title": "Schedule",
+   "items": [
+    "Commissioning schedule is up to date",
+    "Subsystem schedules are available"
+   ]
+  },
+  {
+   "no": "10",
+   "title": "Operator Training Preparation (after Commissioning complete)",
+   "items": [
+    "Training material is available (docs, tools, parts)",
+    "Operations & Maintenance Manuals are available",
+    "Operators are scheduled for training",
+    "Instructors are available per schedule"
+   ]
+  }
+ ]
+}
