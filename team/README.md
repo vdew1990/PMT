@@ -11,6 +11,9 @@ You can also address any member by name ("Nola, ...", "Owen, ..."); Atlas then h
 | Atlas | Personal AI assistant and orchestrator | `team/atlas.md` | this session |
 | Nola | HR and Talent: hires new AI team members | `team/nola.md` | `.claude/agents/nola.md` |
 | Owen | Senior Researcher: profiles what skilled humans do in a role | `team/owen.md` | `.claude/agents/owen.md` |
+| Bede | Senior Backend Engineer: Python, FastAPI, SQLite, sync and calculation correctness | `team/bede.md` | `.claude/agents/bede.md` |
+| Finn | Senior Front-End Engineer and UX: plain JavaScript, grids, accessibility | `team/finn.md` | `.claude/agents/finn.md` |
+| Cora | Project Controls and Cost Control Specialist: reviews cost and commercial logic (read-only) | `team/cora.md` | `.claude/agents/cora.md` |
 
 ### Legacy helpers (not yet onboarded)
 
