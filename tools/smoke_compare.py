@@ -96,12 +96,14 @@ def run(seed_db, out_file):
     from fastapi.testclient import TestClient
     from app.main import app
     from fastapi.routing import APIRoute
+    sys.path.insert(0, str(ROOT / "tools"))
+    from route_inventory import flat_routes
     con = sqlite3.connect(db_copy)
     pid = con.execute("SELECT id FROM project ORDER BY id LIMIT 1").fetchone()[0]
     client = TestClient(app)
     result = {}
-    for r in app.routes:
-        if not isinstance(r, APIRoute) or "GET" not in r.methods:
+    for r in flat_routes(app.routes):
+        if not isinstance(getattr(r, "original_route", r), APIRoute) or "GET" not in r.methods:
             continue
         url = _url(r.path, con, pid)
         if EXTRA.get(r.path):
