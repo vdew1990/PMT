@@ -1,6 +1,6 @@
 # Backlog
 
-One row per item. Seeded on 31/10/2026 from the open items in `docs/threads.md`, `docs/release-log.md`, `docs/designs.md`
+One row per item. Seeded on 30/10/2026 from the open items in `docs/threads.md`, `docs/release-log.md`, `docs/designs.md`
 and `docs/decisions.md`; nothing here is new scope. Source column says where the wording came from, so check it before building.
 Stage: Idea, Spec, Design agreed, Build, Test, Review, Done. Items marked "check" had a planned release whose outcome is not stated in the handoff.
 
