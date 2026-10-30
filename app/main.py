@@ -8,7 +8,6 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import linking, changelog, db, sync, pronto, services
-
 from .routers._shared import J, UPLOADS
 from .routers import platform, setup, pmo, revenue as revenue_routes, cost   # app.revenue (the calculations) is a different module
 from .routers.revenue import claim_create, sub_save  # noqa: F401  (tests call these endpoint functions directly)
@@ -35,8 +34,6 @@ async def lifespan(_app):
 
 
 app = FastAPI(title="Project Management Tool", docs_url="/api/docs", openapi_url="/api/openapi.json", lifespan=lifespan)
-
-
 app.router.default_response_class = J
 
 
@@ -88,5 +85,3 @@ app.mount("/static", StaticFiles(directory=STATIC), name="static")
 @app.get("/")
 def index():
     return FileResponse(STATIC / "index.html")
-
-

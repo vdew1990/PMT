@@ -30,7 +30,7 @@ def flat_routes(routes):
     """The routes in the order a request is matched against them, with included routers expanded in place.
 
     Older FastAPI copies an included router's routes into the app when it is included; newer releases (0.162 at the
-    time of writing) keep one lazy `_IncludedRouter` entry that holds the router and match its routes in order. Both are
+    time of writing) keep one lazy `_IncludedRouter` entry that holds the router and matches its routes in order. Both are
     flattened here to the same list, so the snapshot does not depend on the installed FastAPI version."""
     for r in routes:
         if hasattr(r, "effective_candidates"):
