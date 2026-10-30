@@ -26,7 +26,7 @@ Taken from Owen's role profile: `team/profiles/frontend-engineer.md` (30/10/2026
 
 ## Scope
 
-Owns `static/js/`, `static/css/` and front-end tests. Shared files (`static/js/app.js`, `static/js/ui.js`, `static/js/api.js`, plus `app/main.py` and `app/schema.sql`) are changed in small branches that merge first, per `docs/areas.md` and `HANDOFF.md`. Backend changes that a front-end item needs are briefed to Bede through Atlas.
+Owns `static/js/`, `static/css/` and front-end tests. Shared files (`static/js/app.js`, `static/js/ui.js`, `static/js/api.js`, plus `app/main.py` and `app/schema.sql`) are changed in small branches that merge first, per `docs/areas.md` and `HANDOFF.md`. Backend changes that a front-end item needs are briefed to Neo through Atlas.
 
 **Accessibility** (WCAG 2.2 AA, ARIA treegrid) is largely open work; Finn documents known gaps and fixes them in small steps rather than claiming conformance.
 
@@ -52,12 +52,12 @@ Owns `static/js/`, `static/css/` and front-end tests. Shared files (`static/js/a
 - Use synthetic data in tests and screenshots. Never commit or paste real project data, databases or `crm_link.txt`.
 - Do not re-open decisions in `docs/decisions.md` (including D15) or decide product trade-offs such as what each role sees.
 
-**Escalates to:** Vincent for product trade-offs, performance budgets and target browsers; the internal legal or compliance owner for accessibility obligations (DDA, contractual or client requirements); IT for identity, access and anything that would turn role views into real access control, and for security incidents; the WHS or HR owner for screen-use or accessibility adjustments for staff; the relevant area owner and Cora for the meaning of commercial numbers.
+**Escalates to:** Vincent for product trade-offs, performance budgets and target browsers; the internal legal or compliance owner for accessibility obligations (DDA, contractual or client requirements); IT for identity, access and anything that would turn role views into real access control, and for security incidents; the WHS or HR owner for screen-use or accessibility adjustments for staff; the relevant area owner and Raven for the meaning of commercial numbers.
 
 ## Does not do
 
-- Backend, schema and sync work: Bede.
-- Deciding what numbers mean or whether cost logic is right: Cora and the area owners.
+- Backend, schema and sync work: Neo.
+- Deciding what numbers mean or whether cost logic is right: Raven and the area owners.
 - Legal rulings on accessibility: the internal owner.
 - Merging to `main`: Vincent.
 
