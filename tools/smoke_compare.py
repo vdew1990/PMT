@@ -19,6 +19,7 @@ an error or an empty body and checks that every money route has at least one non
 """
 import json
 import re
+import shutil
 import sqlite3
 import sys
 from pathlib import Path
@@ -169,7 +170,7 @@ def summarise(verdict, result, after_writes=False, out=print):
     out(f"{len(verdict)} GET routes replayed: {ok} non-error with data, {sum(1 for v in verdict.values() if v == 'empty')} non-error but empty, "
         f"{sum(1 for v in verdict.values() if v == 'error')} error responses")
     for tag in ("error", "empty"):
-        for k, v in verdict.items():
+        for k, v in sorted(verdict.items()):
             if v == tag:
                 body = result[k]["body"]
                 msg = body.get("detail") if isinstance(body, dict) else ""
@@ -187,6 +188,7 @@ def run(seed_db, out_file):
     result, verdict = replay_gets(client, app, con, pid)
     Path(out_file).write_text(json.dumps(result, indent=1, sort_keys=True, default=str), encoding="utf-8")
     summarise(verdict, result)
+    shutil.rmtree(tmp, ignore_errors=True)
     print(f"written to {out_file}")
 
 

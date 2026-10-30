@@ -35,7 +35,7 @@ def bootstrap(seed_db, prefix="pmt-replay-"):
     con = sqlite3.connect(db_copy, timeout=30)
     con.row_factory = sqlite3.Row
     pid = con.execute("SELECT id FROM project ORDER BY id LIMIT 1").fetchone()[0]
-    return TestClient(app), app, con, pid, tmp
+    return TestClient(app, raise_server_exceptions=False), app, con, pid, tmp
 
 
 def flat_routes(routes):
@@ -112,12 +112,14 @@ def describe_binary(resp):
     return out
 
 
-MASK_KEYS = ("build", "build_now")   # the program-file fingerprint changes with any file edit, by design (app/build.py)
+MASK_KEYS = {"build", "build_now"}   # the program-file fingerprint changes with any file edit, by design (app/build.py)
+# keys a replay run that writes data adds (clock times and generated tokens, see tools/write_replay.py); empty for the read-only replay
+EXTRA_MASK_KEYS = set()
 
 
 def norm_json(o):
     if isinstance(o, dict):
-        return {k: ("<fingerprint>" if k in MASK_KEYS else norm_json(v)) for k, v in o.items()}
+        return {k: ("<fingerprint>" if k in MASK_KEYS else "<masked>" if k in EXTRA_MASK_KEYS else norm_json(v)) for k, v in o.items()}
     if isinstance(o, list):
         return [norm_json(v) for v in o]
     return o
