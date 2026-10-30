@@ -76,9 +76,12 @@ def _url(path, con, pid):
     return "/".join(out)
 
 
+MASK = ("build", "build_now")   # the program-file fingerprint changes with any file edit, by design (app/build.py)
+
+
 def _norm(o):
     if isinstance(o, dict):
-        return {k: _norm(v) for k, v in o.items()}
+        return {k: ("<fingerprint>" if k in MASK else _norm(v)) for k, v in o.items()}
     if isinstance(o, list):
         return [_norm(v) for v in o]
     return o

@@ -1,7 +1,6 @@
-"""HTTP API and static front end."""
+"""HTTP API and static front end: app assembly (middleware, error handlers, start-up, static files) and router inclusion."""
 import io
 import json
-from datetime import datetime
 import mimetypes
 import base64
 import os
@@ -9,25 +8,31 @@ import re
 import secrets
 import shutil
 import time
+from datetime import datetime
 from collections import defaultdict
 from pathlib import Path
+from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
-from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
-from . import (objects as objects_mod, org_load, ecf, resourcing_paper, team as team_mod, complexity, groundup, checklists, revert as revert_mod, allowance, pools, stakeholders, cmt_import, knowledge, orgchart, gates, challenge, build, claim_template, directory, linking, crm_link, pmt_workbook, pronto_raw, invoices as invoices_mod, crm, workload, library, portfolio, help as help_mod, diagnostics, variation_io, subcontract_io, suppliers, schedule_import, eom_report, accruals, activity, review, site_files, timeline, changelog, db, forecast, holidays, identity, sync, drill as drill_mod, engine, exporters, programme, pronto, risk as risk_mod, reports, revenue, services, subcontracts, templates_io,
+from . import (objects as objects_mod, org_load, ecf, resourcing_paper, team as team_mod, complexity, groundup,
+               checklists, revert as revert_mod, allowance, pools, stakeholders, cmt_import, knowledge, orgchart,
+               gates, challenge, build, claim_template, directory, linking, crm_link, pmt_workbook, pronto_raw,
+               invoices as invoices_mod, crm, library, portfolio, help as help_mod, diagnostics, variation_io,
+               subcontract_io, suppliers, schedule_import, eom_report, accruals, activity, review, site_files,
+               timeline, changelog, db, forecast, holidays, identity, sync, drill as drill_mod, engine, exporters,
+               programme, pronto, risk as risk_mod, reports, revenue, services, subcontracts, templates_io,
                variations)
 from .taxonomy import (ACCRUAL_REASONS, CLAIM_STATUS, CLIENT_STATUS, CONTRACT_STATUS, EPEC_STATUS, FREQUENCIES,
-                       GP_GROUP, GRANDPARENTS, METHODS, PARENTS, PRICING_MODELS, SPREAD_MODES,
-                       SPREAD_NOTES, FORECAST_BASIS, ROSTER_PATTERNS, MILESTONE_PRESETS)
+                       GP_GROUP, GRANDPARENTS, METHODS, PARENTS, PRICING_MODELS, SPREAD_MODES, SPREAD_NOTES,
+                       FORECAST_BASIS, ROSTER_PATTERNS, MILESTONE_PRESETS)
+
+from .routers._shared import J, UPLOADS, _rm, _xlsx, get_con, need_project
 
 ROOT = Path(__file__).resolve().parent.parent
 STATIC = ROOT / "static"
-UPLOADS = db.DB_PATH.parent / "uploads"  # beside the database: on this PC, never in the synced folder
-
-from contextlib import asynccontextmanager
 
 
 @asynccontextmanager
@@ -48,21 +53,6 @@ async def lifespan(_app):
 
 
 app = FastAPI(title="Project Management Tool", docs_url="/api/docs", openapi_url="/api/openapi.json", lifespan=lifespan)
-
-
-def _round(o):
-    if isinstance(o, float):
-        return round(o, 2)
-    if isinstance(o, dict):
-        return {k: _round(v) for k, v in o.items()}
-    if isinstance(o, (list, tuple)):
-        return [_round(v) for v in o]
-    return o
-
-
-class J(JSONResponse):
-    def render(self, content):
-        return super().render(_round(content))
 
 
 app.router.default_response_class = J
@@ -96,30 +86,6 @@ async def _one_action(request, call_next):
     if request.method in ("GET", "HEAD") and (request.url.path == "/" or request.url.path.startswith("/static/")):
         resp.headers["Cache-Control"] = "no-cache"
     return resp
-
-
-def get_con(request: Request):
-    con = db.connect()
-    try:
-        yield con
-        pid = request.path_params.get("pid")
-        if pid and request.method != "GET":
-            con.execute("UPDATE project SET version = COALESCE(version,0)+1 WHERE id=?", (pid,))
-        con.commit()
-        if request.method != "GET":
-            sync.poke()
-    except Exception:
-        con.rollback()
-        raise
-    finally:
-        con.close()
-
-
-def need_project(con, pid):
-    p = db.one(con, "SELECT * FROM project WHERE id=?", (pid,))
-    if not p:
-        raise HTTPException(404, "Project not found")
-    return p
 
 
 # ---------------------------------------------------------------------------
@@ -1955,7 +1921,6 @@ def forecast_restore(pid: int, nid: int, body: dict, con=Depends(get_con)):
     return {"ok": True}
 
 
-
 @app.get("/api/p/{pid}/accruals")
 def accrual_list(pid: int, con=Depends(get_con)):
     accruals.match(con, pid)
@@ -2188,14 +2153,6 @@ def pronto_commit(pid: int, body: dict, con=Depends(get_con)):
     return dict(results=results, lines_created=created, suggestions=len(pronto.suggestions(con, pid)))
 
 
-def _rm(path):
-    """Delete a temporary upload; a file Windows still has open is left for the next clean-up rather than failing the request."""
-    try:
-        path.unlink(missing_ok=True)
-    except OSError:
-        pass
-
-
 def _apply_suggestions(con, pid, items):
     n = 0
     s = db.project_settings(con, pid)
@@ -2413,7 +2370,6 @@ async def schedule_analyse(pid: int, file: UploadFile = File(...), con=Depends(g
     return dict(token=token, filename=file.filename, existing_items=existing, claim_lines=claimed, existing_claims=n_claims, status_month=M,
                 project_status_date=proj.get("status_date"), grid=claim_template.grid_summary(grid, M) if grid else None,
                 **schedule_import.preview(parsed, None if grid else M))
-
 
 
 @app.get("/api/p/{pid}/schedule/template.xlsx")
@@ -2868,7 +2824,6 @@ def sub_certificate_pdf(pid: int, sid: int, cid: int, name: str = "", con=Depend
     return Response(data, media_type="application/pdf", headers={"Content-Disposition": f'attachment; filename="{base}.pdf"'})
 
 
-
 @app.delete("/api/p/{pid}/subcontracts/{sid}/claims/{cid}")
 def sub_claim_delete(pid: int, sid: int, cid: int, con=Depends(get_con)):
     con.execute("DELETE FROM sub_claim WHERE id=? AND subcontract_id=?", (cid, sid))
@@ -3304,7 +3259,6 @@ def review_deadline_get(pid: int, submitted: str = "", con=Depends(get_con)):
     return {"deadline": revenue.review_deadline(con, p, submitted or None), "days": p.get("review_days"), "basis": p.get("review_basis") or "business"}
 
 
-
 # ---------------------------------------------------------------------------
 # Project library (PMO): knowledge documents
 # ---------------------------------------------------------------------------
@@ -3427,7 +3381,6 @@ def setup_draft_discard(pid: int, rid: int, con=Depends(get_con)):
     return res
 
 
-
 # ---------------------------------------------------------------------------
 # CMT upload: gap analysis against cost control, then align item by item
 # ---------------------------------------------------------------------------
@@ -3503,7 +3456,6 @@ def cmt_updated(pid: int, token: str):
 @app.post("/api/p/{pid}/cmt/undo")
 def cmt_undo(pid: int, con=Depends(get_con)):
     return {"restored": cmt_import.undo(con, pid)}
-
 
 
 # ---------------------------------------------------------------------------
@@ -3714,11 +3666,6 @@ def claim_pdf(pid: int, cid: int, name: str = "", layout: str = "", con=Depends(
 @app.get("/api/p/{pid}/claims/{cid}.xlsx")
 def claim_xlsx(pid: int, cid: int, con=Depends(get_con)):
     return _xlsx(exporters.claim_xlsx(con, pid, cid), "progress-claim.xlsx")
-
-
-def _xlsx(data, name):
-    return Response(data, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    headers={"Content-Disposition": f'attachment; filename="{name}"'})
 
 
 @app.get("/api/p/{pid}/snapshots")
