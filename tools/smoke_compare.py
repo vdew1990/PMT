@@ -153,7 +153,9 @@ def _url(path, con, pid):
 def replay_gets(client, app, con, pid):
     """Run every GET route once. Returns (results keyed 'GET path', verdicts keyed the same: ok | empty | error)."""
     result, verdict = {}, {}
-    for r in rc.api_routes(app):
+    # in path order, not registration order: some GETs leave state behind that later reads see, so moving a route between modules
+    # would otherwise change the figures without changing any behaviour
+    for r in sorted(rc.api_routes(app), key=lambda r: r.path):
         if "GET" not in r.methods:
             continue
         url = _url(r.path, con, pid)
