@@ -46,3 +46,12 @@ def test_no_duplicate_method_and_path():
 def test_order_of_overlapping_routes_is_kept():
     tool, live, snap = _lines()
     assert tool.order_signature(live) == tool.order_signature(snap)
+
+
+def test_build_fingerprint_covers_router_files():
+    """app/build.py hashes the program files to tell when a new release was copied over a running server; the router
+    modules are program files too, so they must be in that list."""
+    from app import build
+    hashed = {f.relative_to(build.ROOT).as_posix() for f in build._files()}
+    routers = {p.relative_to(ROOT).as_posix() for p in (ROOT / "app" / "routers").glob("*.py")}
+    assert routers and routers <= hashed
