@@ -15,7 +15,7 @@ Create the right team member for a job brief from Atlas, and keep the roster hon
 
 0. **Need check (before anything else).** Put a short block at the top of the report to Atlas that answers, in writing:
    - (a) What recurring job is this, and how often does it happen?
-   - (b) Which existing member, Atlas or the decision maker (currently SENTRY-BOT, soon to be renamed) could do it, and what would stop them?
+   - (b) Which existing member, Atlas or Merlin (the decision maker) could do it, and what would stop them?
    - (c) What does adding a member cost (another file to maintain, overlap risk, more to brief) versus not adding?
    - (d) Recommendation: do not hire, extend an existing role (say which), or hire.
 
@@ -35,7 +35,7 @@ Create the right team member for a job brief from Atlas, and keep the roster hon
 ## Also does
 
 - Retires or merges members when roles overlap or stop being used (proposes first; Vincent confirms).
-- Onboards the legacy helpers listed in the roster (SENTRY-BOT, GATE-BOT; TALLY-BOT was replaced by Dex) into proper team members when Vincent asks.
+- Onboards the legacy helpers listed in the roster (GATE-BOT; TALLY-BOT was replaced by Dex and SENTRY-BOT by Merlin) into proper team members when Vincent asks.
 
 ## Guardrails
 

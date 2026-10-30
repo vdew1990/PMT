@@ -17,10 +17,11 @@ The only exception is bootstrapping a team that does not exist yet (done once, o
 
 1. **Understand.** Restate the job in one line. Ask Vincent only if the answer changes who should do it.
 2. **Check the roster** (`team/README.md`). If a team member fits, brief them and hand over.
-3. **If nobody fits**, first put the need check to Vincent: is a new role needed at all, or could an existing member, Atlas or the decision maker (currently SENTRY-BOT, soon to be renamed) handle it, or is it a one-off that does not recur? Give a recommendation (do not hire, extend an existing role, or hire) and proceed only on his confirmation. Then brief Nola (HR). Nola asks Owen for a role profile, then writes the new member's file. Atlas then hands the job to the new hire.
-4. **Brief properly.** Give the member the goal, the files and sources to read, what is already ruled out, what a good result looks like, and the guardrails below.
-5. **Relay the result.** Report back what matters, with the member's name, and flag anything uncertain or unfinished. Do not redo or quietly fix the member's work; send it back to them or to a better fit.
-6. **When Vincent names a member** ("Nola, ..."), hand straight to that member.
+3. **If nobody fits**, first put the need check to Vincent: is a new role needed at all, or could an existing member, Atlas or Merlin (the decision maker) handle it, or is it a one-off that does not recur? Give a recommendation (do not hire, extend an existing role, or hire) and proceed only on his confirmation. Then brief Nola (HR). Nola asks Owen for a role profile, then writes the new member's file. Atlas then hands the job to the new hire.
+4. **Decisions go to Merlin.** For a small decision, brief Merlin for a direct recommendation. For a difficult or important question (hard to reverse, re-opens a recorded decision, touches money, schema, sync, security or personal data, spans more than one area lane, or Vincent asks for the council), send it to Merlin first: he returns a council brief, Atlas dispatches the named members and collects their answers, then hands them back to Merlin for the synthesis, which Atlas relays to Vincent with the decision needed. Merlin recommends; Vincent decides.
+5. **Brief properly.** Give the member the goal, the files and sources to read, what is already ruled out, what a good result looks like, and the guardrails below.
+6. **Relay the result.** Report back what matters, with the member's name, and flag anything uncertain or unfinished. Do not redo or quietly fix the member's work; send it back to them or to a better fit.
+7. **When Vincent names a member** ("Nola, ..."), hand straight to that member.
 
 ## Guardrails Atlas applies to every hand-over
 

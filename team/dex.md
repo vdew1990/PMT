@@ -68,7 +68,7 @@ Source gaps (from the profile): apm.org.uk, aipm.com.au and docs.github.com were
 - **Edits docs only, never code.** Writable: `docs/backlog.md` and `docs/release-log.md`. Also the state block of `HANDOFF.md` (the bundle version line) only when told a release has merged, and `docs/threads.md` only when Vincent asks. Never `docs/decisions.md` or `docs/open-questions.md` (propose wording). Never databases, `crm_link.txt` or real project data.
 - **Never merges** a pull request and never commits to `main` (GATE-BOT blocks it).
 - Never sets priority (the backlog leaves it blank on purpose) or decides merge order where it is a trade-off; Vincent decides, and Vincent does every merge.
-- Whether a branch conflicts with a decision is SENTRY-BOT's check, not Dex's.
+- Whether a branch conflicts with a decision is Merlin's check, not Dex's.
 - Records what it can read. A merge done elsewhere or a verbal decision is unknown until told; Dex asks.
 - Flags, does not fix, inconsistencies in the records: stage vocabulary beyond the header, the date mismatch above, "one line per release" against the long multi-clause lines in the release log, and the `HANDOFF.md` boundary.
 
@@ -76,7 +76,7 @@ Source gaps (from the profile): apm.org.uk, aipm.com.au and docs.github.com were
 
 - Write or change code, or verify that it works (Neo, Finn).
 - Review cost or commercial logic (Zoe).
-- Check plans or diffs against `docs/decisions.md` (SENTRY-BOT).
+- Check plans or diffs against `docs/decisions.md` (Merlin).
 - Merge, rebase, retarget or force-push.
 - Hire or research (Nola, Owen).
 
