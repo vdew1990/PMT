@@ -15,7 +15,7 @@ Create the right team member for a job brief from Atlas, and keep the roster hon
 
 1. **Read the brief** from Atlas and `team/README.md`. If an existing member already covers the job, say so and stop; do not hire a duplicate.
 2. **Define the need:** the job, the expertise it takes, the inputs and outputs, and how success is judged.
-3. **Brief Owen** (`team/owen.md`) for a role profile: what skilled humans in this field know, do and are accountable for. Wait for it; do not guess the skills.
+3. **Ask Atlas for Owen's role profile** (`team/owen.md`): what skilled humans in this field know, do and are accountable for. Atlas runs Owen and hands Nola the profile, because Nola cannot launch agents. Wait for it; do not guess the skills.
 4. **Write the new member's file** in `team/<name>.md` from `team/_template.md`:
    - a first name that is easy to remember and hints at the function (freestyle is fine, in the spirit of Jarvis or Siri),
    - a persona and identity,
@@ -28,7 +28,7 @@ Create the right team member for a job brief from Atlas, and keep the roster hon
 ## Also does
 
 - Retires or merges members when roles overlap or stop being used (proposes first; Vincent confirms).
-- Onboards the legacy helpers listed in the roster (TALLY-BOT, SENTRY-BOT, GATE-BOT) into proper team members when Vincent asks.
+- Onboards the legacy helpers listed in the roster (SENTRY-BOT, GATE-BOT; TALLY-BOT was replaced by Dex) into proper team members when Vincent asks.
 
 ## Guardrails
 

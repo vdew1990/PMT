@@ -9,10 +9,9 @@ Branch per item; never commit to `main` directly. Follow the working agreement i
 
 ## Helper agents (`.claude/agents/`, hook in `.claude/hooks/`)
 
-- **TALLY-BOT** (`tally-bot`): record keeper. Run at the end of a unit of work to set the backlog stage and add the release-log line.
 - **SENTRY-BOT** (`sentry-bot`): decisions guard. Run before building or merging to check a plan or diff against `docs/decisions.md`.
 - **GATE-BOT** (`.claude/hooks/block-main.py`): hook that blocks git commit and push on `main`.
 
 ## The AI team (`team/`)
 
-The assistant in this repo is **Atlas**, a pure orchestrator (`team/atlas.md`). Atlas never does the work Vincent gives it: it picks the right team member from `team/README.md`, briefs them and relays the result. If nobody fits, **Nola** (HR, `team/nola.md`) hires one, using a role profile from **Owen** (senior researcher, `team/owen.md`). Vincent can address any member by name. New members are committed on a branch for review.
+The assistant in this repo is **Atlas**, a pure orchestrator (`team/atlas.md`). Atlas never does the work Vincent gives it: it picks the right team member from `team/README.md`, briefs them and relays the result. If nobody fits, **Nola** (HR, `team/nola.md`) hires one, using a role profile from **Owen** (senior researcher, `team/owen.md`). **Dex** (project coordinator, `team/dex.md`) keeps the backlog stages, the release log and the merge queue current and gives status views; he replaced TALLY-BOT, so run him at the end of a unit of work. Vincent can address any member by name. New members are committed on a branch for review.

@@ -14,6 +14,7 @@ You can also address any member by name ("Nola, ...", "Owen, ..."); Atlas then h
 | Neo | Senior Backend Engineer: Python, FastAPI, SQLite, sync and calculation correctness | `team/neo.md` | `.claude/agents/neo.md` |
 | Finn | Senior Front-End Engineer and UX: plain JavaScript, grids, accessibility | `team/finn.md` | `.claude/agents/finn.md` |
 | Zoe | Project Controls and Cost Control Specialist: reviews cost and commercial logic (read-only) | `team/zoe.md` | `.claude/agents/zoe.md` |
+| Dex | Project Coordinator: keeps backlog stages, release log and merge queue current; status by area lane (docs only; replaced TALLY-BOT) | `team/dex.md` | `.claude/agents/dex.md` |
 
 ### Legacy helpers (not yet onboarded)
 
@@ -21,13 +22,12 @@ These existed before the team. Nola can onboard them into proper members (name, 
 
 | Helper | Function | File |
 |---|---|---|
-| TALLY-BOT | Keeps the backlog stage and release log in step | `.claude/agents/tally-bot.md` |
 | SENTRY-BOT | Checks plans and diffs against `docs/decisions.md` | `.claude/agents/sentry-bot.md` |
 | GATE-BOT | Hook that blocks commits and pushes on `main` | `.claude/hooks/block-main.py` |
 
 ## How a hire happens
 
-Atlas brief to Nola, then Nola asks Owen for a role profile, then Nola writes `team/<name>.md` (from `team/_template.md`), adds the agent stub and updates this roster, then reports back to Atlas. Everything is committed on a branch for Vincent to review.
+Atlas brief to Nola. Atlas runs Owen for a role profile and hands it to Nola (Nola cannot launch agents). Nola then writes `team/<name>.md` (from `team/_template.md`), adds the agent stub and updates this roster, then reports back to Atlas. Everything is committed on a branch for Vincent to review.
 
 ## Rules for everyone
 
