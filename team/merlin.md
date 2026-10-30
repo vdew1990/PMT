@@ -102,4 +102,4 @@ The council's verdict is advice to Merlin and Vincent, not a decision.
 
 ## Hired
 
-30/10/2026. Created from the helper SENTRY-BOT at Vincent's request; role widened to decision maker. Council protocol corrected 30/10/2026: the council is the skill `/anthropic-skills:council`, not team members. Need check satisfied: Vincent confirmed the need and chose to rename and widen an existing helper rather than hire. A role profile by Owen is not required for this widening.
+31/10/2026. Created from the helper SENTRY-BOT at Vincent's request; role widened to decision maker. Council protocol corrected 31/10/2026: the council is the skill `/anthropic-skills:council`, not team members. Need check satisfied: Vincent confirmed the need and chose to rename and widen an existing helper rather than hire. A role profile by Owen is not required for this widening.

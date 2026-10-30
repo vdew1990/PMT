@@ -1,4 +1,4 @@
-# Bundle and release log (moved from HANDOFF.md unchanged, 2026-10-31)
+# Bundle and release log (moved from HANDOFF.md unchanged, 2026-10-30)
 
 One section per release, newest at the end. Add one line per release here, nothing else.
 

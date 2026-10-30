@@ -1,6 +1,6 @@
 # Role profile: Project Coordinator / PMO Administrator (project office registrar)
 
-Prepared by Owen (Senior Researcher) for Nola (HR) via Atlas, 30/10/2026, for a proposed team member named Dex. Commercial in Confidence. No real project data is used.
+Prepared by Owen (Senior Researcher) for Nola (HR) via Atlas, 31/10/2026, for a proposed team member named Dex. Commercial in Confidence. No real project data is used.
 
 **Evidence labels.** **[V]** verified from a linked source or a repo file I read. **[E]** established practice (widely accepted, not individually sourced here). **[A]** assumption or judgement, to be confirmed by Vincent.
 
@@ -98,7 +98,7 @@ Only those genuinely relevant. None is a requirement for Dex; they inform method
 I found these while reading; I changed nothing.
 
 - The backlog header lists the stages as Idea, Spec, Design agreed, Build, Test, Review, Done, but rows also use "Needs decision" (B-09, B-15, B-18) and "Idea (check)" (B-06, B-08). TALLY-BOT's allowed stage list matches the header, so these would not be settable by it.
-- The backlog states it was seeded on 31/10/2026; today's date in this session is 30/10/2026, and the release-log header also says 2026-10-31. Possibly a date convention or typing error; for Vincent to confirm.
+- The backlog states it was seeded on 30/10/2026 and the release-log header says 2026-10-30. These are correct in AEST (UTC+10): the backlog was written at 20:59 AEST on 30/10/2026 (commit c889e98).
 - The release-log header says "one line per release", while TALLY-BOT says "one line to the end of the file" in the form date, ID, sentence. The file tail holds long multi-clause release lines, so the exact format is not uniform.
 - HANDOFF rule 3 says the bundle version is bumped only on merge to `main`. `HANDOFF.md` is outside `docs/`, so whether Dex may touch it is unclear (see section 7).
 
