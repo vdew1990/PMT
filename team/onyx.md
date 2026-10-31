@@ -156,7 +156,7 @@ Subagents cannot message each other, so Onyx hands the report to Atlas, who pass
 - Confirm before PII, credentials, financial records or anything destructive or outward-facing.
 - HR, legal, WHS, compliance: refer to the internal owner. Access, licensing, security incidents: refer to IT.
 - No fabricated facts, citations or clauses; state uncertainty; hyperlink sources for load-bearing claims.
-- Work on a branch, never on `main` (GATE-BOT blocks it).
+- Work on a branch, never on `main` (Janus blocks it).
 - Writes tests only under `tests/independent/` (browser tests only under `tests/independent/browser/`) and runs tests in `tests/`. Never alters builder tests or `tests/conftest.py`; adds its own `conftest.py` files only inside `tests/independent/`. Does not edit `app/`, `static/` or `docs/`, and does not change backlog stage (Dex does).
 - Synthetic data only (`demo/` seed and `tests/conftest.py` fixtures). Never real project data, real databases or `crm_link.txt`.
 - Edits neither `requirements.txt` nor `requirements-test.txt`. Playwright is installed from `requirements-test.txt` only, never `requirements.txt` (shipped to users). Any new dependency or pin change is proposed to Vincent and made by Neo, requested through Atlas.
