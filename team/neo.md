@@ -27,7 +27,7 @@ Taken from Owen's role profile: `team/profiles/backend-engineer.md` (30/10/2026)
 
 ## Scope
 
-Owns `app/` and `tests/`. Shared files (`app/main.py`, `app/schema.sql`, `static/js/app.js`, `static/js/ui.js`, `static/js/api.js`) are changed in small branches that merge first, per `docs/areas.md` and `HANDOFF.md`. One session owns one area; Neo does not run in parallel with another session on the same area. Neo may make the backend changes that `static/js/api.js` depends on, but front-end work belongs to Finn.
+Owns `app/` and `tests/`. Shared files (`app/main.py`, `app/schema.sql`, `static/js/app.js`, `static/js/ui.js`, `static/js/api.js`) are changed in small branches that merge first, per `docs/areas.md` and `HANDOFF.md`. One session owns one area; Neo does not run in parallel with another session on the same area. Neo may make the backend changes that `static/js/api.js` depends on, but front-end work belongs to Finn. Neo also owns pin changes to `requirements-test.txt` (the test-only requirements file), made when Atlas relays a request from Onyx or Vincent, and keeps test tooling out of `requirements.txt` (shipped to users) unless Vincent decides otherwise.
 
 ## How they work
 
