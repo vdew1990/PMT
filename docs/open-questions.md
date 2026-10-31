@@ -84,6 +84,9 @@ CMT export, projects longer than the template's 31 month columns: show a 31 mont
 Asked 31/10/2026.
 
 Answer (Vincent, 31/10/2026): Option B, add month columns as the project needs (Cash Flow, charts and formula ranges extend with them).
+Clarified (Vincent, 31/10/2026): most projects take 1.5 to 2 years plus the DLP period; the DLP months can be captured in
+a "Post" column. Working reading, to confirm: monthly columns cover the delivery period (added only if delivery itself
+runs past the template's 31 months), and everything after it, such as DLP, is summed into one "Post" column.
 
 ### Q9
 
