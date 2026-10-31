@@ -84,6 +84,33 @@ export default async function costControl(root, params) {
   if (covered.length && !res.is_parent) root.append(h('div', { class: 'note', style: { marginBottom: '10px', display: 'flex', gap: '12px', alignItems: 'center' } }, h('span', { style: { flex: 1 } },
     `${covered.length} unallocated pool${covered.length > 1 ? 's' : ''} cover${covered.length > 1 ? '' : 's'} ${fmt.money(covered.reduce((a, r) => a + r.pool_covered, 0))} of cost that landed on the lines beneath ${covered.length > 1 ? 'them' : 'it'}, so that cost is not forecast a second time. Allocate the allowance to those lines to make it permanent.`),
     h('button', { class: 'btn sm', onclick: () => poolDialog(covered.reduce((a, r) => a + r.pool_covered, 0), covered.length) }, 'Allocate allowance to cover costs')));
+  // ---- Q13: a line whose schedule item went in a re-upload stays flagged for everyone until it is linked again or dismissed ----
+  const lostText = (x) => `Schedule item '${x.task || 'unknown'}'${x.wbs ? ` (${x.wbs})` : ''} gone on ${fmt.date(x.date) || 'an unknown date'}; ${x.role === 'stop' ? 'stop date' : x.role === 'start' ? 'start date' : 'dates'} kept as typed value.`;
+  const lostAll = (r) => (r.schedule_link_lost || []).map(lostText).join(' ');
+  function lostMark(r) {
+    if (!r.schedule_link_lost || res.is_parent) return null;
+    return h('button', { type: 'button', class: 'badge warn lostmark', title: lostAll(r) + ' Open the line to link it to the schedule or dismiss.',
+      'aria-label': `Schedule item gone: ${lostAll(r)} Open the line to link it to the schedule or dismiss.`,
+      onclick: (e) => { e.stopPropagation(); openDrawer(r, 'forecast'); } }, h('span', { 'aria-hidden': 'true' }, '\u26a0'), ui.months ? null : ' Schedule gone');
+  }
+  // the detail note in the drawer and the month window: what went, Link to schedule (opens the window editor's task pick) and Dismiss
+  function lostNote(r, onDone, linkTo) {
+    if (!r.schedule_link_lost || res.is_parent) return null;
+    const L = r.schedule_link_lost;
+    return h('div', { class: 'note warn lostnote', style: { marginBottom: '10px' } },
+      h('b', {}, L.length > 1 ? 'Schedule items gone' : 'Schedule item gone'),
+      h('ul', { style: { margin: '4px 0 6px 18px', padding: 0 } }, L.map((x) => h('li', {}, lostText(x)))),
+      h('div', { class: 'row', style: { gap: '6px' } },
+        linkTo ? h('button', { type: 'button', class: 'btn sm', onclick: () => linkTo((L[L.length - 1] || {}).role === 'stop' ? 'stop' : 'start') }, 'Link to schedule') : null,
+        h('button', { type: 'button', class: 'btn ghost sm', title: 'Take the flag off this line for every user. The dates stay as they are.', onclick: async () => {
+          try { const o = await api.del(p(`/nodes/${r.node_id}/schedule-link-lost`)); toast(o.cleared ? `${r.code}: schedule flag dismissed` : `${r.code}: the flag was already cleared`); await onDone(); }
+          catch (err) { toast(err.message, 'bad'); }
+        } }, 'Dismiss')));
+  }
+  const lostCount = res.is_parent ? 0 : rows.filter((r) => r.kind === 'line' && r.schedule_link_lost).length;
+  if (lostCount) root.append(h('div', { class: 'note warn', style: { marginBottom: '10px', display: 'flex', gap: '12px', alignItems: 'center' } },
+    h('span', { style: { flex: 1 } }, `${lostCount} line${lostCount > 1 ? 's have' : ' has'} lost ${lostCount > 1 ? 'their' : 'its'} schedule item in a schedule re-upload: the dates are kept as typed values. Link each to the schedule again or dismiss the flag.`),
+    h('button', { type: 'button', class: 'btn sm', onclick: () => { ui.only = 'lost'; save(); drawBar(); draw(); } }, 'Show them')));
   const crumbs = h('div', { class: 'crumbs' });
   const bar = h('div', { class: 'card', style: { padding: '10px 14px', marginBottom: '12px' } });
   const search = h('input', { type: 'search', placeholder: 'Search code, name, resource, function...', style: { width: '280px' }, oninput: debounce(() => { ui.q = search.value.trim().toLowerCase(); draw(); }, 150) });
@@ -96,7 +123,7 @@ export default async function costControl(root, params) {
     path.forEach((r, i) => { crumbs.append(h('span', { class: 'sep' }, '›'), i === path.length - 1 ? h('b', {}, `${r.code} ${r.name}`) : h('a', { onclick: () => { setScope(r); render(); } }, `${r.code} ${r.name}`)); });
     bar.append(h('div', { class: 'row' }, crumbs, h('button', { class: 'btn sm ghost', onclick: () => pickNode({ allowRoot: true, selected: scopeId, showEac: true, onPick: (r) => { setScope(r); render(); } }) }, 'Change scope')),
       h('div', { class: 'row', style: { marginTop: '8px' } }, search, h('span', { class: 'small muted' }, 'Expand to'), ...[1, 2, 3, 4, 5].map((n, i) => { const c = lv[i]; c.className = 'chip' + (ui.level === n ? ' on' : ''); return c; }),
-        h('span', { style: { width: '6px' } }), filterMenu('Filters', [filt('over', 'Overruns'), filt('under', 'Underruns'), filt('short', 'CTC below PO'), filt('nomethod', 'Nothing to forecast from')], ui.only ? 1 : 0),
+        h('span', { style: { width: '6px' } }), filterMenu('Filters', [filt('over', 'Overruns'), filt('under', 'Underruns'), filt('short', 'CTC below PO'), filt('nomethod', 'Nothing to forecast from'), filt('lost', 'Schedule item gone')], ui.only ? 1 : 0),
         h('label', { class: 'row small', style: { gap: '4px' } }, h('input', { type: 'checkbox', checked: ui.hideZero, onchange: (e) => { ui.hideZero = e.target.checked; save(); draw(); } }), 'Hide empty lines'),
         h('label', { class: 'row small', style: { gap: '4px' } }, h('input', { type: 'checkbox', checked: ui.months, onchange: (e) => { ui.months = e.target.checked; save(); drawBar(); draw(); } }), 'Show monthly grid')));
   }
@@ -116,11 +143,12 @@ export default async function costControl(root, params) {
   };
   const passes = (r) => {
     if (r.kind === 'group') return true;
-    if (ui.hideZero && r.origin !== 'ctc' && r.origin !== 'wip' && !(r.allowance || r.ctd || r.acc || r.ctc || r.outstanding)) return false;
+    if (ui.hideZero && !r.schedule_link_lost && r.origin !== 'ctc' && r.origin !== 'wip' && !(r.allowance || r.ctd || r.acc || r.ctc || r.outstanding)) return false;
     if (ui.only === 'over' && !(r.contingency < -1)) return false;
     if (ui.only === 'under' && !(r.contingency > 1)) return false;
     if (ui.only === 'short' && r.po_status !== 'SHORT') return false;
     if (ui.only === 'nomethod' && !r.note) return false;
+    if (ui.only === 'lost' && !r.schedule_link_lost) return false;
     return true;
   };
 
@@ -233,7 +261,7 @@ export default async function costControl(root, params) {
       const wc = windowCells(r);
       const CELL = {
         cbs: h('td', { class: 'mono' }, h('span', { style: { paddingLeft: (r.level - 1) * (GM ? 10 : 14) + 'px' } }), tog, r.code),
-        name: h('td', {}, r.name, r.active === 0 ? badge('inactive') : null, r.parts ? h('span', { class: 'badge navy', style: { marginLeft: '6px' }, title: 'Includes variation scope tracked on its own CBS copy: open the line for the breakdown' }, `+${r.parts.length - 1} var`) : null),
+        name: h('td', {}, lostMark(r), lostMark(r) ? ' ' : null, r.name, r.active === 0 ? badge('inactive') : null, r.parts ? h('span', { class: 'badge navy', style: { marginLeft: '6px' }, title: 'Includes variation scope tracked on its own CBS copy: open the line for the breakdown' }, `+${r.parts.length - 1} var`) : null),
         func: h('td', { class: 'muted' }, r.function || ''),
         budget: amt(r, 'budget', r.allowance), po: amt(r, 'po', r.po_committed), outstanding: amt(r, 'outstanding', r.outstanding), ctd: amt(r, 'ctd', r.ctd, true), acc: amt(r, 'acc', r.acc), ctc: amt(r, 'ctc', r.ctc, true),
         eac: amt(r, 'eac', r.eac, true, { fontWeight: 700 }), cont: amt(r, 'contingency', r.contingency, true, {}, tone(r.contingency)), risk: amt(r, 'risk', r.risk_cost),
@@ -370,20 +398,21 @@ export default async function costControl(root, params) {
           : h('span', {}, 'Typed. '), link('Link to a schedule item', () => choose(r))));
     });
     function choose(r) {
-      pickTask(`${r === 'start' ? 'Start' : 'Stop'} of ${det.code || 'this line'} follows which schedule item?`, (t, edge) => { const set = (role, e) => { st[role] = { mode: 'schedule', task_id: t.id, task: t.name, edge: e, date: e === 'start' ? t.start_date : t.finish_date }; }; if (edge === 'both') { set('start', 'start'); set('stop', 'finish'); } else set(r, edge); dur.value = ''; paint(); if (st.start.mode === 'schedule' && st.stop.mode === 'schedule') dur.value = ym(st.stop.date) - ym(st.start.date) + 1; });
+      pickTask(`${r === 'start' ? 'Start' : 'Stop'} of ${det.code || 'this line'} follows which schedule item?`, (t, edge) => { const set = (role, e) => { st[role] = { mode: 'schedule', task_id: t.id, task: t.name, edge: e, date: e === 'start' ? t.start_date : t.finish_date }; }; if (edge === 'both') { set('start', 'start'); set('stop', 'finish'); } else set(r, edge); dur.value = ''; paint(); if (st.start.mode === 'schedule' && st.stop.mode === 'schedule') dur.value = ym(st.stop.date) - ym(st.start.date) + 1; if (saveBtn) saveBtn.focus(); });
     }
     [dates.start, dates.stop, dur].forEach((x) => {
       x.addEventListener('focus', () => { was = filled().length === 3; });
       x.addEventListener('input', () => { if (was) { free().filter((y) => y !== x).forEach((y) => { y.value = ''; }); was = false; } st.start.date = dates.start.value; st.stop.date = dates.stop.value; calc(); });
     });
     paint();
+    let saveBtn = null;
     const linked = [W.start, W.stop].some(Boolean);
     const el = h('div', { class: 'card', style: { marginBottom: '12px' } }, h('div', { class: 'ch' }, h('h2', {}, 'Activity window'), h('span', { class: 'sp' }),
       h('span', { class: 'small muted' }, linked ? 'Linked to the project schedule: it follows it when the schedule changes.' : 'Not linked to the schedule: set it here, or link Start and Stop to schedule items.')),
       h('div', { class: 'grid g3' }, h('div', {}, field('Start', dates.start), boxes.start), h('div', {}, field('Stop', dates.stop), boxes.stop), field('Duration (months)', dur)),
       h('div', { class: 'small muted', style: { margin: '6px 0' } }, !det.start_date && eff && eff.start && !linked ? `Now inherited from the group above: ${fmt.month(eff.start)} to ${fmt.month(eff.end)}. ` : '',
         'Start and Stop can follow a schedule item (a task\'s start or finish, or a milestone), or be typed. Fill any two of the three and the third is worked out; changing one of three filled typed fields clears the other typed ones. The forecast is spread over this window.'),
-      h('div', { class: 'row' }, h('button', { class: 'btn', onclick: async () => {
+      h('div', { class: 'row' }, saveBtn = h('button', { class: 'btn', onclick: async () => {
         calc();
         const spec = (r) => (st[r].mode === 'schedule' ? { mode: 'schedule', task_id: st[r].task_id, edge: st[r].edge } : dates[r].value ? { mode: 'typed', date: dates[r].value } : { mode: 'duration' });
         const a = spec('start'), b = spec('stop');
@@ -395,6 +424,7 @@ export default async function costControl(root, params) {
         const r = await api.post(p(`/nodes/${nodeId}/window`), { start: a, stop: b, months: +dur.value || null });
         toast('Activity window saved'); await onDone(); if (r.warnings && r.warnings.length) toast('Some typed months now sit outside the window: they are outlined on Cost control', 'bad');
       } }, 'Save window')));
+    el._choose = choose;
     return el;
   }
 
@@ -467,6 +497,7 @@ export default async function costControl(root, params) {
       h('td', { class: 'r num' }, w ? fmt.money(w.ctc) : ''), h('td', { class: 'r num' }, w ? fmt.money(w.eac) : ''), h('td', { class: 'r num ' + (w ? tone(w.contingency) : '') }, w ? fmt.money(w.contingency) : ''),
       h('td', {}, w && w.note ? h('span', { class: 'small muted', title: w.note }, w.note.length > 34 ? w.note.slice(0, 34) + '…' : w.note) : h('span', { class: 'small muted', title: 'Change the method on the Cost control row' }, 'compare only'))));
     const sub = (det.subcontracts || [])[0];
+    const mpEd = !isPot && row.kind === 'line' ? windowEditor(det, nid, async () => { md.close(); await render(); }, { start: row.start, end: row.end }) : null;
     const links = h('div', { class: 'row', style: { marginTop: '12px' } },
       h('button', { class: 'btn', onclick: () => go('forecast', { node: isPot ? 'p' + nid : nid }) }, (row.method === 'GROUND-UP' ? 'Open the ground-up detail' : 'Open this line in Forecast')),
       sub ? h('button', { class: 'btn ghost', onclick: () => go('subcontracts', { open: sub.id }) }, `Claim sheet: ${sub.name}`) : null,
@@ -475,7 +506,8 @@ export default async function costControl(root, params) {
     const md = modal({ title: `${row.code} ${row.name}: cost by month`, size: 'xl', body: h('div', {},
       h('div', { class: 'small muted', style: { marginBottom: '8px' } }, `${METHOD_NOTE[row.method || 'AT-BUDGET']} ${res.planned_from ? `The darker green ${fmt.month(M)} (F) column is the month as forecast at ${res.planned_from}.` : ''}`),
       row.note ? h('div', { class: 'note warn', style: { marginBottom: '8px' } }, row.note) : null,
-      !isPot && row.kind === 'line' ? windowEditor(det, nid, async () => { md.close(); await render(); }, { start: row.start, end: row.end }) : null,
+      lostNote(row, async () => { md.close(); await render(); }, (role) => { mpEd.scrollIntoView({ block: 'nearest' }); mpEd._choose(role); }),
+      mpEd,
       h('div', { class: 'tw' }, h('table', { class: 't' }, h('thead', {}, head), h('tbody', {}, lineRow, h('tr', {}, h('td', { colSpan: 99, class: 'small muted' }, 'What the other methods would give for this line (nothing changes until you pick one):')), ...alt))),
       links), actions: [{ label: 'Close', kind: 'ghost', onClick: () => {} }] });
     if (shownAll.length > 1) {   // the outline strip above the month table in the window
@@ -555,6 +587,8 @@ export default async function costControl(root, params) {
     const kp = (l, v, c = '') => h('div', { class: 'kpi' }, h('div', { class: 'l' }, l), h('div', { class: 'v ' + c, style: { fontSize: '17px' } }, v));
     body.append(h('div', { class: 'grid g6', style: { marginBottom: '14px' } }, kp('Allowance', fmt.m(row.allowance)), kp('CTD', fmt.m(row.ctd)), kp('Accruals', fmt.m(row.acc)), kp('CTC', fmt.m(row.ctc)), kp('EAC', fmt.m(row.eac)), kp('Contingency', fmt.m(row.contingency), tone(row.contingency))));
     if (row.note) body.append(h('div', { class: 'note warn', style: { marginBottom: '10px' } }, row.note));
+    let winEd = null;   // the forecast tab's window editor, for Link to schedule
+    if (row.kind === 'line') { const ln = lostNote(row, async () => { await keep(r0, d); }, (role) => { if (cur !== 'forecast') { cur = 'forecast'; sw(); } if (winEd) { winEd.scrollIntoView({ block: 'nearest' }); winEd._choose(role); } }); if (ln) body.append(ln); }
     if (row.po_status === 'SHORT') body.append(h('div', { class: 'note bad', style: { marginBottom: '10px' } }, `Cost to complete (${fmt.money(row.ctc)}) is below open PO commitments (${fmt.money(row.outstanding)}). Raise the forecast or close the PO in Pronto.`));
     // how the budget is made up: original, movements, then each variation (topped up here or tracked on a copy) = total
     const bu = await api.get(p(`/nodes/${nodeId}/budget-buildup${isPot ? '?own=1' : ''}`)).catch(() => null);
@@ -614,7 +648,7 @@ export default async function costControl(root, params) {
           await api.put(p(`/nodes/${nodeId}`), body); toast('Saved'); await keep(r0, d); } }, 'Save')) : null);
       pane.append(meth);
       pane.append(spark());
-      if (!isPot) pane.append(windowEditor(det, nodeId, async () => { await keep(r0, d); }, { start: row.start, end: row.end }));
+      if (!isPot) { winEd = windowEditor(det, nodeId, async () => { await keep(r0, d); }, { start: row.start, end: row.end }); pane.append(winEd); }
       pane.append(h('div', { class: 'row', style: { margin: '-4px 0 12px' } }, h('button', { class: 'btn ghost sm', onclick: () => go('forecast', { node: isPot ? 'p' + nodeId : nodeId }) }, 'Open this line in Forecast'), h('span', { class: 'small muted' }, 'Resource calendars, milestone payments and rosters are built there.')));
       if (!isPot && (method.value === 'GROUND-UP' || det.items.length)) pane.append(itemsCard());
       if (!isPot && method.value === 'MANUAL') pane.append(manualCard());

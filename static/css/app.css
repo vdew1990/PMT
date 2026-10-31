@@ -88,6 +88,7 @@ label.f input,label.f select,label.f textarea{font-weight:400;color:#000}
 .badge{display:inline-block;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:700;background:var(--grey);color:var(--slate)}
 .badge.bad{background:#fdeceb;color:var(--bad)} .badge.good{background:#e4f4ec;color:var(--good)} .badge.warn{background:#fff3d6;color:var(--warn)}
 .badge.navy{background:var(--navy);color:#fff}
+button.badge.lostmark{border:0;font-family:inherit;line-height:1.5;cursor:pointer;min-height:24px;min-width:24px;vertical-align:middle;white-space:nowrap} button.badge.lostmark:hover{text-decoration:underline}
 .tabs{display:flex;gap:2px;border-bottom:2px solid var(--grey);margin-bottom:14px;flex-wrap:wrap}
 .tabs button{background:none;border:0;padding:8px 14px;cursor:pointer;color:var(--slate);font-weight:600;border-bottom:3px solid transparent;margin-bottom:-2px}
 .tabs button.on{color:var(--navy);border-bottom-color:var(--gold)}
