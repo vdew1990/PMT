@@ -14,6 +14,22 @@ import pytest  # noqa: E402
 from app import db  # noqa: E402
 
 
+@pytest.fixture(scope="session", autouse=True)
+def demo_dir(tmp_path_factory):
+    """Point demo.build_demo.DEMO at a temporary copy of demo/, so tests (and the /api/demo routes they call)
+    write the generated demo files there and never rewrite the tracked files in demo/."""
+    import shutil
+    from demo import build_demo
+    original = build_demo.DEMO
+    tmp = tmp_path_factory.mktemp("demo")
+    for f in original.iterdir():
+        if f.is_file() and f.suffix in (".pdf", ".xml", ".xlsx"):
+            shutil.copy2(f, tmp / f.name)
+    build_demo.DEMO = tmp
+    yield tmp
+    build_demo.DEMO = original
+
+
 @pytest.fixture(scope="module")
 def demo():
     """A fully seeded demonstration project in a fresh database."""
