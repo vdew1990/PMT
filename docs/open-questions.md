@@ -87,6 +87,7 @@ Answer (Vincent, 31/10/2026): Option B, add month columns as the project needs (
 Clarified (Vincent, 31/10/2026): most projects take 1.5 to 2 years plus the DLP period; the DLP months can be captured in
 a "Post" column. Working reading, to confirm: monthly columns cover the delivery period (added only if delivery itself
 runs past the template's 31 months), and everything after it, such as DLP, is summed into one "Post" column.
+Confirmed (Vincent, 31/10/2026): yes.
 
 ### Q9
 
@@ -147,6 +148,8 @@ uploaded, plus a local audit entry that does not sync. A typed duration on that 
 are now static. Is that enough as "the flag", or must the line stay visibly flagged for every user until someone deals
 with it? A lasting flag needs one new column on the CBS line (schema, Vincent's decision); it would be a follow-up and
 does not block the current branch. Asked 31/10/2026.
+
+Answer (Vincent, 31/10/2026): keep it flagged for everyone (synced, on the line, until someone deals with it). Schema change approved for this flag; follow-up item.
 
 ### Q14
 
