@@ -66,11 +66,17 @@ template, built by a strip tool and proven clean by an allow-list test (only rev
 values, no pivot records, blank document properties). Option B: no template in the repo; PMT reads the template from
 a path in a local settings file (like `crm_link.txt`) and strips it at every export. Asked 31/10/2026.
 
+Answer (Vincent, 31/10/2026): Option A, including the stripping of the Majors Creek CMT as described. The template ships
+inside the program files (for example `app/cmt_template/`, alongside `app/gate_forms/`), so it is in every release zip and
+is replaced by each release; it is not a local setting.
+
 ### Q7
 
 CMT export, Pronto sheets: fill the CMT's Pronto sheets (General Ledger, Commitments, PO Register, Labour, Revenue)
 from the Pronto rows PMT already stores, so the CMT recomputes CTD from Pronto the way Finance does (Neo's plan)? Or
 write PMT's actuals into the month columns as plain values? Asked 31/10/2026.
+
+Answer (Vincent, 31/10/2026): Option A, fill the Pronto sheets.
 
 ### Q8
 
