@@ -18,20 +18,19 @@ Stages are only those in the `docs/backlog.md` header: Idea, Spec, Design agreed
    - **Not verifiable**, with why.
 3. **On Fail:** Atlas sends the evidence report to the owner (Neo, Finn, or both). Dex sets the stage to "Test (failed)" and records the verdict and commit. The owner fixes and hands over a NEW commit with a fresh test brief note; Dex sets the stage back to "Test"; return to step 2. Argus never fixes.
 4. **On Not verifiable:** stage stays at Test; Dex says why. Fix the gap (brief, data, tooling) and return to step 2.
-5. **On Pass: Merlin decisions check.** Merlin checks the plan and diff against `docs/decisions.md` and `docs/specs/`. A conflict goes back to the builder or to Vincent.
+5. **On Pass: Merlin decisions check.** Merlin checks the plan and diff against `docs/decisions.md`, `docs/specs/` (M-decisions), `docs/designs.md` and `docs/open-questions.md`. On a conflict: if it goes to Vincent, Dex sets the stage to "Needs decision"; if it goes back to the builder, the new commit returns to Test with a fresh brief and Argus tests it again (step 2).
 6. **Dex records.** Given the ID, the account, Argus's verdict and the commit tested:
    - sets the stage as far as the evidence supports. An item leaves Test only on an Argus Pass. Never Done unless the pull request is merged (checked with `gh api`, not inferred from the branch name);
    - appends one line to `docs/release-log.md`: DD/MM/YYYY (AEST), ID, one sentence, with the verdict and commit. Never rewrites earlier lines.
 7. **Merge queue.** Dex lists open pull requests (number, head SHA, base, ID, shared files). Merlin judges the merge order (shared-file branches first, per `docs/areas.md`). Vincent merges. After the merge, Dex sets Done and, when told, bumps the bundle version in `HANDOFF.md`.
 
-Order note: `team/argus.md` gives builder, Argus, Merlin, Dex. Dex records the Argus verdict whenever it lands (including Fail) so the stage is never stale.
-This chain order is pending Vincent's confirmation.
+Order (confirmed by Vincent, 31/10/2026): on Pass, builder, Argus, Merlin, Dex, as in `team/argus.md`. On Fail or Not verifiable, Dex records it immediately and Merlin is not run on that commit.
 
 ## Who may write what
 
-- Builders: `app/`, `static/`, `tests/` (not `tests/independent/`). They do not edit `docs/backlog.md` or `docs/release-log.md`.
+- Builders: the paths in the Scope sections of `team/neo.md` and `team/finn.md` (never `tests/independent/`), plus their own thread's Status and Next step lines in `docs/threads.md`. They do not edit `docs/backlog.md` or `docs/release-log.md`.
 - Argus: `tests/independent/` only.
-- Dex: `docs/backlog.md`, `docs/release-log.md`.
+- Dex: `docs/backlog.md`, `docs/release-log.md`, and new threads in `docs/threads.md` when an item has none.
 - Merlin: read-only.
 - Vincent: merges, release sign-off. A Pass is evidence for him, not approval.
 

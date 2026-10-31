@@ -379,4 +379,5 @@ Source: Vincent's finding on Cost control (hidden columns still took up room), h
 
 31/10/2026, S0: master spec (purpose and decisions, M1 to M15) written and verified by Vincent; spec items S1 to S12 added to the backlog as B-19 to B-30, Stage Spec. Source: docs/specs/00-purpose-and-decisions.md.
 
-31/10/2026, team tooling: added skills pmt-team-change, pmt-ship-item and pmt-spec-writer and CLAUDE.md rules for AEST dates and session continuity. Built as a one-off by Atlas on Vincent's instruction; chain order in pmt-ship-item and team/profiles handling in pmt-team-change pending Vincent's confirmation.
+31/10/2026, team tooling: added skills pmt-team-change, pmt-ship-item and pmt-spec-writer and CLAUDE.md rules for AEST dates and session continuity. Drafted by Dex, committed by Atlas on Vincent's instruction as a one-off.
+31/10/2026, team tooling: fixes from Merlin review of the tooling skills (named writers for docs/threads.md, team changes and specs; Merlin sources; whole-word grep sweeps; chain order and team/profiles handling confirmed by Vincent). Made by Atlas on Vincent's instruction as a one-off.

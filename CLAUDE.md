@@ -7,12 +7,12 @@ Dates written in docs are DD/MM/YYYY in Australia/Brisbane time (AEST, UTC+10, n
 Start with `HANDOFF.md`, then `docs/decisions.md` and your area in `docs/areas.md` and `docs/backlog.md`.
 Run the tests with `.venv/bin/python -m pytest tests -q` before and after a change. Do not commit databases, `crm_link.txt` or any real project data.
 Branch per item; never commit to `main` directly. Follow the working agreement in `HANDOFF.md`.
-On a build that spans more than one sitting, keep the thread's Status and Next step lines in `docs/threads.md` current at each stopping point, using the `session-continuity` skill, so a new session can resume. Do not add a separate state file.
+On a build that spans more than one sitting, the builder (Neo or Finn) keeps its own thread's Status and Next step lines in `docs/threads.md` current at each stopping point, so a new session can resume; Dex adds a new thread when an item has none. Do not add a separate state file. (Vincent's user-level `session-continuity` skill describes the format where it is installed; it is not a repo skill.)
 
 ## Helper agents and skills (`.claude/agents/`, `.claude/skills/`, hook in `.claude/hooks/`)
 
 - **Janus** (formerly GATE-BOT, `.claude/hooks/block-main.py`): hook that blocks git commit and push on `main`.
-- **pmt-team-change** (`.claude/skills/pmt-team-change/`): one pass and one commit for any hire, rename or retirement, with a grep sweep before and after; supports Nola's process.
+- **pmt-team-change** (`.claude/skills/pmt-team-change/`): one pass, one branch and one pull request for any hire, rename or retirement, with a grep sweep before and after; supports Nola's process.
 - **pmt-ship-item** (`.claude/skills/pmt-ship-item/`): end-of-item chain for one backlog ID: test brief, Argus verdict, Merlin check, Dex records, merge queue.
 - **pmt-spec-writer** (`.claude/skills/pmt-spec-writer/`): structure and numbering for a new spec (next free S, M and B numbers, never renumber).
 

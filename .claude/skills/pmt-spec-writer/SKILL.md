@@ -9,6 +9,10 @@ Why this exists: decisions were renumbered from D to M1 to M15 and D15 was marke
 
 Read first: `docs/specs/00-purpose-and-decisions.md` (S0, the master spec), `docs/decisions.md`, `docs/backlog.md`. A spec must not contradict S0; change a decision in S0 first, with Vincent's verification.
 
+## Who writes specs
+
+Specs under `docs/specs/` are drafted by whoever Vincent names for that spec. In S0, only the Spec index Status column may be updated without asking; any other change to S0 needs Vincent's verification.
+
 ## Numbering rules
 
 | Series | Meaning | Where it lives | Next number |
@@ -21,7 +25,7 @@ Read first: `docs/specs/00-purpose-and-decisions.md` (S0, the master spec), `doc
 Find the next free numbers from the current files, never from memory:
 
 ```
-grep -rhoE "\bM[0-9]+\b" docs/specs/ | sort -t M -k2 -n | tail -1
+grep -rhoE "^\| M[0-9]+" docs/specs/ | grep -oE "[0-9]+" | sort -n | tail -1   # decision table rows only
 grep -oE "^\| B-[0-9]+" docs/backlog.md | sort -t- -k2 -n | tail -1
 ```
 
@@ -31,9 +35,10 @@ grep -oE "^\| B-[0-9]+" docs/backlog.md | sort -t- -k2 -n | tail -1
 ## Superseding a decision
 
 Follow the D15 / M14 pattern:
-- New row: `| M16 | <decision> | Replaces M<n>. <who>, DD/MM/YYYY. |`
-- Old row keeps its text; append to Notes: `Superseded DD/MM/YYYY by M16 (<file>).`
+- New row: `| M<next> | <decision> | Replaces M<n>. <who>, DD/MM/YYYY. |`
+- Old row keeps its text; append to Notes: `Superseded DD/MM/YYYY by M<next> (<file>).`
 - If the old one is a D-number in `docs/decisions.md`, do not edit it: propose to Vincent the line `Superseded DD/MM/YYYY by M<n> in docs/specs/<file>; <what stays>.`
+- Sweep `team/*.md` and `docs/` for the old ID (`grep -rnw "M<n>" team docs`) and list stale references for their owners to fix.
 
 ## File and structure
 
