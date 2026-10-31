@@ -83,6 +83,8 @@ Answer (Vincent, 31/10/2026): Option A, fill the Pronto sheets.
 CMT export, projects longer than the template's 31 month columns: show a 31 month window, or add columns?
 Asked 31/10/2026.
 
+Answer (Vincent, 31/10/2026): Option B, add month columns as the project needs (Cash Flow, charts and formula ranges extend with them).
+
 ### Q9
 
 How should the expected cost of the status month be treated between the status date and month-end close? Fictional
