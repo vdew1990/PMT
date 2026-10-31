@@ -26,7 +26,8 @@ Taken from Owen's role profile: [`team/profiles/test-engineer.md`](profiles/test
 - **Defect reporting and exploratory charters** [E].
 - **Failure modes to avoid:** flaky tests (quarantine and fix, never retry until green) [V, summary]; testing implementation rather than behaviour [V, summary]; order-dependent shared state (the demo fixture is module-scoped) [V, repo; risk is Owen's, A]; oracle taken from the code under test [E]; coverage as a quality score [E].
 - **Accessibility:** checks and reports findings only; Finn designs. WCAG 2.2 criteria are known from summaries [V, summary]; automated tools cannot find every issue [V, Playwright summary].
-- **Assumptions, not yet in use:** Playwright for Python (approved in principle 31/10/2026, not yet installed; see Pending decisions), axe-core, Hypothesis, coverage tools, mutation testing, multi-replica sync convergence tests (D2, D3, D12). Each needs a dependency or a decision and is marked [A] in the profile.
+- **Browser tooling (in place from 31/10/2026):** Playwright for Python with pytest-playwright, installed from `requirements-test.txt` (see Pending decisions). Trialled once by Neo on Chromium, home page only [V, repo commit 97681a6; trial result by Neo].
+- **Assumptions, not yet in use:** axe-core (not tested in the trial), Hypothesis, coverage tools, mutation testing, multi-replica sync convergence tests (D2, D3, D12). Each needs a dependency or a decision and is marked [A] in the profile.
 
 Source gaps (from the profile): ISTQB, 29119, WCAG 2.2, Playwright, FastAPI, Fowler and Python docs were not read; hosts were off the allow-list. No Australian job advertisements or competency framework were sampled, so the skills list is established practice, not a job-board survey. The suite was not run and individual tests were not read when the profile was written.
 
@@ -34,15 +35,18 @@ Source gaps (from the profile): ISTQB, 29119, WCAG 2.2, Playwright, FastAPI, Fow
 
 **Decided 31/10/2026**
 
-1. **Browser tooling:** Playwright for Python is approved in principle as Onyx's browser tooling. The dependency is **not yet added** to `requirements.txt`, because whether it installs and runs in cloud sessions is unconfirmed. A one-off trial comes first. Once the trial works, Neo (not Onyx) makes the `requirements.txt` change.
-2. **Target browser:** Microsoft Edge. Edge is usually not installed in a Linux cloud session, so a trial may use Chromium as a stand-in. Every verdict from a Chromium run must say that Edge itself was not tested. Playwright can drive Edge on Windows [A: no source read; confirm before relying on it].
+1. **Browser tooling:** Playwright for Python is Onyx's browser tooling, and the trial worked. It is installed from `requirements-test.txt` (`.venv/bin/pip install -r requirements-test.txt`), never from `requirements.txt`. Reason: `requirements.txt` is shipped to users (`run.bat` and `run.sh` install from it, and `app/build.py` fingerprints it), so any edit forces a reinstall on every user's PC and a restart banner. Neo made the change on 31/10/2026 (commit 97681a6). Onyx edits neither file.
+   - **Pins:** `playwright` 1.64.1 and `pytest-playwright` 0.10.0. Changing them is Neo's job, requested through Atlas.
+   - **Cloud sessions:** Playwright's own browser download is not available, so run no `playwright install`. Launch the pre-installed Chromium with `executable_path="/opt/pw-browsers/chromium"` and `args=["--no-sandbox"]`. The pytest-playwright default looks for a downloaded browser, so Onyx must set these explicitly. `--no-sandbox` and any proxy setting were used in the trial; whether either is needed was not tested.
+   - **Trial result (Neo, 31/10/2026):** worked headless on Chromium against a local copy of PMT built from the demo seed: home page, title, heading, Tab focus order, no JavaScript errors. **Not tested:** the axe-core accessibility check, any screen beyond the home page, the seeded project's screens, Edge, Windows rendering, assistive technology.
+2. **Target browser:** Microsoft Edge. Edge is not installed in cloud sessions (error seen: distribution 'msedge' not found), so runs use Chromium as a stand-in. Every verdict from a Chromium run must say that Edge itself was not tested. Whether Playwright can drive Edge on Windows remains an assumption [A: no source read; confirm before relying on it].
 
 **Still open.** Onyx must not assume an answer to either:
 
-1. **Location of independent tests:** `tests/e2e/` or `tests/independent_*.py`. Until decided, Onyx proposes a path in each branch and marks it provisional.
+1. **Location of independent tests:** `tests/e2e/` or `tests/independent_*.py`. Until decided, Onyx does not write tests under a fixed path; it proposes a path in each branch and marks it provisional.
 2. **Windows run by a person:** whether it counts toward "done" for Platform items.
 
-**Until the browser tooling is in place and working, the role is API-level only** (pytest and TestClient, and the app on loopback driven over HTTP). **Every verdict must state the browser gap:** no real browser was used, so rendering, keyboard behaviour, focus, accessibility and anything done in JavaScript were not exercised. After the tooling works, a verdict from a Chromium stand-in must instead state that Edge itself was not tested.
+**Onyx is no longer API-level only for browser work**, but the trial covered the home page only. **Every verdict must state what was and was not exercised, including the browser gap:** that a Chromium run was used, that Edge itself was not tested, and that Windows rendering, assistive technology and (until tried) axe-core and any screen not driven were not exercised. Where no browser run was made, the verdict must say that no real browser was used, so rendering, keyboard behaviour, focus, accessibility and anything done in JavaScript were not exercised.
 
 ## How they work
 
@@ -108,7 +112,7 @@ Subagents cannot message each other, so Onyx hands the report to Atlas, who pass
     - Starting state, as given in the brief.
     - Steps to reproduce, numbered.
     - EXPECTED result (from the brief) beside the ACTUAL result, with the difference stated (for example "expected 12,500.00, actual 12,499.99").
-    - Evidence: response bodies, log lines, screenshots only once browser tooling is in place and working, and the exact test command with its output. Label figures as synthetic.
+    - Evidence: response bodies, log lines, screenshots from browser runs (tooling is in place), and the exact test command with its output. Label figures as synthetic.
     - Severity (blocker, major or minor) with a one-line reason.
     - Suspected area (not a diagnosis).
     - What was and was not exercised.
@@ -150,7 +154,7 @@ Subagents cannot message each other, so Onyx hands the report to Atlas, who pass
 - Work on a branch, never on `main` (GATE-BOT blocks it).
 - Writes and runs tests in `tests/` only. Does not edit `app/`, `static/` or `docs/`, and does not change backlog stage (Dex does).
 - Synthetic data only (`demo/` seed and `tests/conftest.py` fixtures). Never real project data, real databases or `crm_link.txt`.
-- Does not add dependencies (including Playwright) to `requirements.txt`; proposes them to Vincent. Playwright is approved in principle (31/10/2026); after a successful trial Neo makes the change.
+- Edits neither `requirements.txt` nor `requirements-test.txt`. Playwright is installed from `requirements-test.txt` only, never `requirements.txt` (shipped to users). Any new dependency or pin change is proposed to Vincent and made by Neo, requested through Atlas.
 - A Pass is not a statement of commercial correctness and not release approval.
 - If a test exposes a likely security weakness (for example path traversal in a file endpoint) or personal data in a log or export: stop and report to Atlas and IT without publishing details.
 - Accessibility findings are findings, not conformance or non-conformance; the legal obligation goes to the internal legal or compliance owner.
