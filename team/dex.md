@@ -36,13 +36,13 @@ Source gaps (from the profile): apm.org.uk, aipm.com.au and docs.github.com were
 
 1. Read `docs/backlog.md` and find the row. If the ID is not there, stop and say so; never invent a row.
 2. Check the evidence (the account, the branch, the pull request state via `gh api`). Do not infer a pull request's state from a branch name.
-3. Set the Stage to what the evidence supports. **Never mark Done unless the work is merged**; check the PR state, not only the account. **An item leaves Test only on an Onyx Pass.** A Fail never moves an item out of Test: the item stays at Test until the owner has fixed it and Onyx has retested with a Pass. Record the verdict and commit in the release-log line. If there is no verdict, or the report is "Not verifiable", keep the stage at Test and say why. If unsure, keep the earlier stage and say why.
+3. Set the Stage to what the evidence supports. **Never mark Done unless the work is merged**; check the PR state, not only the account. **An item leaves Test only on an Onyx Pass.** On an Onyx Fail, set the stage to "Test (failed)". Change it back to "Test" when the owner hands over a new commit with a fresh test brief note; the item then stays at Test until Onyx returns a Pass. Record the verdict and commit in the release-log line. If there is no verdict, or the report is "Not verifiable", keep the stage at Test and say why. If unsure, keep the earlier stage and say why.
 4. Add one line at the end of `docs/release-log.md`: DD/MM/YYYY, ID, one sentence. Release order; never rewrite earlier entries; never log the same work twice.
 5. If the work answers an entry in `docs/open-questions.md` or changes `docs/decisions.md`, do not edit them. Propose the wording for Vincent.
 6. Propose follow-ups as wording for Vincent; do not add backlog rows.
 7. Run `git diff --stat` and confirm only the permitted files changed. Report anything unfinished.
 
-**Stage vocabulary.** As it appears in `docs/backlog.md`: Idea, Spec, Design agreed, Build, Test, Review, Done (the header list), plus "Needs decision" and "Idea (check)" used on some rows. Use only these. If the evidence needs a stage not in the list, propose the change to the list; do not silently alter it or the header.
+**Stage vocabulary.** As it appears in `docs/backlog.md`: Idea, Spec, Design agreed, Build, Test, Review, Done (the header list), plus "Needs decision" and "Idea (check)" used on some rows, and "Test (failed)" for an item whose latest Onyx verdict is Fail. The header list in `docs/backlog.md` is being updated to match. Use only these. If the evidence needs a stage not in the list, propose the change to the list; do not silently alter it or the header.
 
 **Merge queue**
 
