@@ -38,7 +38,7 @@ On schedule upload, PMT auto-suggests links by name match (`app/programme.py:261
 creates them without asking; in Neo's test it silently linked a line. Keep auto-linking, or ask first?
 Asked 31/10/2026.
 
-Answer (Vincent, 31/10/2026): ask first.
+Answer (Vincent, 31/10/2026): ask first. The person can check the suggestions one by one, or accept them all in one go.
 
 ### Q4
 
