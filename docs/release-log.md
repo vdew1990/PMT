@@ -378,3 +378,5 @@ Source: Vincent's finding on Cost control (hidden columns still took up room), h
 - Open: the role-based experience session (what each role sees and edits, for example a PM sees only the PM view and his own profile, a director the director view); a company org chart page; allocation across projects; support roles and contacts per project; vacancies; the 21/10/2026 interim reporting lines once known; HR to review the titles not on the allowed list.
 
 31/10/2026, S0: master spec (purpose and decisions, M1 to M15) written and verified by Vincent; spec items S1 to S12 added to the backlog as B-19 to B-30, Stage Spec. Source: docs/specs/00-purpose-and-decisions.md.
+
+31/10/2026, S1 to S6: draft specs written by Zoe (docs/specs/01 to 06), not yet verified by Vincent; interview questions at the end of each. B-19 to B-24 stay at Stage Spec until verified.
