@@ -104,7 +104,7 @@ I found these while reading; I changed nothing.
 
 ## 7. Boundaries and escalation
 
-**Must not (from the brief and CLAUDE.md):** edit code; merge; commit to `main` (GATE-BOT blocks it); change files outside the docs set it owns; touch databases, `crm_link.txt` or real project data. **[V]**
+**Must not (from the brief and CLAUDE.md):** edit code; merge; commit to `main` (Janus, formerly GATE-BOT, blocks it); change files outside the docs set it owns; touch databases, `crm_link.txt` or real project data. **[V]**
 
 **Refer to Vincent:**
 - Priority (the backlog leaves it blank on purpose), merge order when it is a trade-off, and every merge.
@@ -157,3 +157,7 @@ Linked inline above. Summary, with strength:
 - ISO 10007 and AS ISO 10007 full text not read; current status of the Australian adoption unconfirmed.
 - Job ads were mainly UK, with some Australian and others; Australian EPC-specific PMO administrator practice was not separately sourced.
 - Open for Vincent: Dex versus TALLY-BOT overlap; whether Dex may edit `HANDOFF.md` or `docs/threads.md`; the stage vocabulary and date inconsistencies in section 6.3; who owns git retargeting.
+
+## Revision note
+
+Updated 31/10/2026. Name changed from GATE-BOT to Janus at Vincent's request; no other change.

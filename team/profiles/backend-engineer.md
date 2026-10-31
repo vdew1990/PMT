@@ -49,7 +49,7 @@ No Australian electrical standard (AS/NZS, AEMO, NER) governs this role; none is
 
 ## 5. Tools and methods
 
-- Git branch per item, never commit to `main` (CLAUDE.md, enforced by GATE-BOT hook [V-repo, `team/README.md`]).
+- Git branch per item, never commit to `main` (CLAUDE.md, enforced by Janus (formerly GATE-BOT) hook [V-repo, `team/README.md`]).
 - pytest, venv, a seeded demo project fixture [V-repo].
 - **Route inventory diff**: dump `app.routes` (method, path, name, response model, dependencies) before and after each move; fetch `/openapi.json` before and after and diff. [E] Router order matters where paths overlap (for example `/x/{id}` versus `/x/export`), so the diff must preserve registration order.
 - **Golden-master tests**: for each router, call every endpoint against the demo project and snapshot responses (with volatile fields such as timestamps and ids normalised) before moving code. [E]
@@ -130,3 +130,7 @@ No Australian electrical standard (AS/NZS, AEMO, NER) governs this role; none is
 - I did not run the test suite, read `main.py` in full, or inspect `sync.py` beyond its header, so statements about specific code paths (for example rounding in `engine.py`, route-order hazards, global state) are review prompts, not findings.
 - Whether PMT's personal data triggers Privacy Act duties for EPEC is not determined (legal owner).
 - No Australian standard specific to this role was identified; none is implied.
+
+## Revision note
+
+Updated 31/10/2026. Name changed from GATE-BOT to Janus at Vincent's request; no other change.
