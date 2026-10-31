@@ -2,7 +2,7 @@
 
 One row per item. Seeded on 30/10/2026 from the open items in `docs/threads.md`, `docs/release-log.md`, `docs/designs.md`
 and `docs/decisions.md`; nothing here is new scope. Source column says where the wording came from, so check it before building.
-Stage: Idea, Spec, Design agreed, Build, Test, Review, Done. Items marked "check" had a planned release whose outcome is not stated in the handoff.
+Stage: Idea, Spec, Design agreed, Build, Test, Review, Done, plus three more: "Needs decision" (waiting on a decision from Vincent before work can proceed), "Idea (check)" (an Idea whose planned release has an outcome not stated in the handoff; check before building) and "Test (failed)" (the latest Onyx verdict is Fail; the item returns to Test when the owner hands over a new commit with a fresh test brief note).
 
 Priority is blank on purpose: Vincent sets it. Keep this table in step with the Notion board if one is used.
 
