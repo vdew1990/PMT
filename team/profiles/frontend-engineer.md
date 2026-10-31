@@ -17,8 +17,8 @@ Grounding in the repository (read, not changed): plain JavaScript modules, `stat
 - Excel-style behaviour: arrow and Tab navigation, edit mode versus navigate mode, calculator fields, fill handle, paste from Excel, undo, drag and drop with a non-drag alternative.
 - Windows and popouts, drawers, focus management and restore.
 - Role-based views: what each role sees and defaults to (a view, not a lock, per D15).
-- A small browser test suite, accessibility checks, a visual and keyboard regression set.
-- Deliverables: components with documented behaviour, a UI conventions page (a design-system document), performance budgets, test specs, accessibility statement and known-issues list, short PRs following `HANDOFF.md`.
+- Tests for his own components (isolated logic modules in the style of `outlinecore.js`, and component-level checks), accessibility design and a known-issues list. End-to-end browser flows, cross-area regression and the pass or fail verdict belong to the Test Engineer (Onyx); Finn does not add test tooling to `requirements.txt`. [V, repo: [`team/finn.md`](../finn.md), [`team/onyx.md`](../onyx.md)]
+- Deliverables: components with documented behaviour, a UI conventions page (a design-system document), performance budgets, component test specs and a test brief for Onyx at the end of each unit of work, accessibility statement and known-issues list, short PRs following `HANDOFF.md`.
 
 ## 3. Skills and knowledge
 
@@ -47,12 +47,12 @@ Grounding in the repository (read, not changed): plain JavaScript modules, `stat
 
 ## 5. Tools and methods
 
-- Playwright (Python or Node) for end-to-end checks: keyboard-only scripts (arrow, Tab, Enter, Esc, Ctrl+C, V, Z), fold and unfold, fill handle, drag with its alternative, popouts, role switching, screenshots of status-colour grids. PMT is Python-first, so Playwright for Python plus the existing `.venv` keeps tooling light. [E, A for fit]
+- Playwright (Python or Node) knowledge, used to specify the end-to-end scenarios Onyx should script and to review Onyx's browser flows: keyboard-only scripts (arrow, Tab, Enter, Esc, Ctrl+C, V, Z), fold and unfold, fill handle, drag with its alternative, popouts, role switching, screenshots of status-colour grids. Onyx owns the browser suite; whether Playwright is added to `requirements.txt` is a pending decision for Vincent, not Finn's. [V, repo: [`team/onyx.md`](../onyx.md), "Pending decisions"] If Vincent approves it, PMT is Python-first, so Playwright for Python plus the existing `.venv` keeps tooling light. [E, A for fit]
 - Pure-function modules tested in isolation: `outlinecore.js` is the model (no imports, no DOM). Extend that rule to selection, fill, clipboard and number parsing (`calc`, `num`), so they can be tested with Node's built-in test runner or via Python tests that shell out. [A]
-- axe-core scans on key views, with a baseline of known issues so new regressions fail the build. Manual checks with NVDA on Windows (users are on Windows). [E]
+- axe-core scans on key views, run within Onyx's browser flows once browser tooling is approved [A], with a baseline of known issues (kept by Finn in the known-issues list) so new regressions fail the build. Manual checks with NVDA on Windows (users are on Windows). [E]
 - Browser DevTools performance traces on a worst-case project; a performance budget (for example time to render the largest outline, input latency on cell edit). Specific numbers should be agreed with Vincent. [A]
 - A written conventions page: tokens (`--navy`, orange, gold, pale grey, Mulish), spacing, density, component behaviour, naming. EPEC brand rules apply to documents and visuals; the in-app palette is already in `design.css` and `PALETTE` in `ui.js`. [V, repo]
-- Lightweight visual regression with screenshot comparison, limited to a handful of grids to keep it maintainable. [E]
+- Lightweight visual regression with screenshot comparison, limited to a handful of grids to keep it maintainable; Onyx runs it and Finn nominates the grids and reviews the results. [E; the division of work is V, repo: [`team/finn.md`](../finn.md)]
 
 ## 6. How the work is judged
 
@@ -84,6 +84,7 @@ Grounding in the repository (read, not changed): plain JavaScript modules, `stat
 ## 7. Boundaries and escalation
 
 - Meaning of commercial numbers, forecasting rules, claims and variations logic: refer to the Cost, Revenue or relevant area owner and Vincent (see `docs/areas.md`, `docs/decisions.md`). Do not re-open recorded decisions.
+- End-to-end browser flows, cross-area regression and the pass or fail verdict: the Test Engineer (Onyx). Test tooling in `requirements.txt` (including Playwright): Vincent's decision, proposed by Onyx; Finn does not add it. [V, repo: [`team/finn.md`](../finn.md), [`team/onyx.md`](../onyx.md)]
 - Legal obligations on accessibility (DDA, contractual or client requirements): refer to the internal legal or compliance owner; do not rule.
 - Identity, access, licensing, security incidents, and anything that would make role views into real access control: refer to IT.
 - WHS aspects of long screen use or accessibility adjustments for staff: refer to the WHS or HR owner.
@@ -94,8 +95,8 @@ Grounding in the repository (read, not changed): plain JavaScript modules, `stat
 
 **Can do well**
 - Read and refactor many view files consistently; extract repeated grid code into shared helpers.
-- Write and maintain Playwright and unit tests, including keyboard scripts; draft ARIA roles and keyboard handlers from the APG pattern.
-- Run axe scans, triage output, and propose fixes; keep the conventions page current.
+- Write and maintain unit and component-level tests for its own components, including keyboard handler specs; specify keyboard scripts for Onyx's browser flows and review them; draft ARIA roles and keyboard handlers from the APG pattern.
+- Triage axe scan output from Onyx's flows, and propose fixes; keep the conventions page current.
 - Spot drift between views, unescaped HTML, missing labels, undelegated listeners.
 - Follow the branch, test and release-log routine in `HANDOFF.md` reliably.
 
@@ -116,6 +117,7 @@ Grounding in the repository (read, not changed): plain JavaScript modules, `stat
 | Playwright axe-core integration; automated checks are incomplete | V (summary) | [Playwright accessibility testing](https://playwright.dev/docs/accessibility-testing) |
 | DDA does not name WCAG; AHRC 2025 guidelines advisory; WCAG 2.2 AA preferred; sources conflict | V (weak, secondary) | [Centre for Accessibility Australia](https://www.accessibility.org.au/australia-formally-adopts-wcag-2-2-level-aa/); [BOIA](https://www.boia.org/blog/australia-digital-accessibility-laws-an-overview); [Deque](https://www.deque.com/accessibility-compliance/apac/australia/) |
 | PMT front end structure, tests, role-view notes | V (repo) | `/home/user/pmt/CLAUDE.md`; `docs/areas.md`; `docs/decisions.md` (D15 and the role-view note); `static/js/ui.js`, `outlinecore.js`, `app.js`, `static/css/design.css` |
+| Test ownership split: Finn owns tests for his own components, accessibility design and the known-issues list; Onyx owns end-to-end browser flows, cross-area regression, the verdict and the pending browser-tooling decision | V (repo) | [`team/finn.md`](../finn.md); [`team/onyx.md`](../onyx.md); [`team/profiles/test-engineer.md`](test-engineer.md) |
 | Performance and re-render practices, reviewer checklist | E / A | Practitioner consensus; not individually sourced |
 
 ## 10. Gaps
@@ -126,3 +128,7 @@ Grounding in the repository (read, not changed): plain JavaScript modules, `stat
 - Did not measure PMT performance, run the app, or audit its accessibility; observations come from reading code only. The count of keyboard and ARIA attributes in the views is low (a quick search found one `aria-label` in `ui.js` and none in `tabletools.js`, and a handful in the largest views such as `variations.js` and `revenue.js`; not a full audit), which suggests accessibility work is largely open. [A]
 - No qualification or certification pathway researched beyond naming IAAP.
 - Performance budgets and target browsers (assumed current Edge or Chrome on Windows) need Vincent's confirmation.
+
+## Revision note
+
+Reissued 31/10/2026 by Owen for Nola, via Atlas, on Vincent's approval. The test ownership split now recorded in `team/finn.md` and `team/onyx.md` gives the end-to-end browser suite, cross-area regression and the pass or fail verdict to the Test Engineer (Onyx). Finn keeps tests for his own components, accessibility design and the known-issues list, and does not add test tooling to `requirements.txt`. This profile therefore no longer gives Finn the browser suite (sections 2, 5 and 8), and the related wording in sections 2, 5, 7, 8 and 9 was aligned. All other wording, sources, labels and hyperlinks are unchanged. New statements carry labels [V, repo], [E] or [A]; no existing label was upgraded. The original wording is in git history.
