@@ -30,11 +30,15 @@ Alternative (Option 2): link at forecast item level instead. Asked 31/10/2026.
 When a schedule re-upload no longer contains a task that a CBS line is linked to: should the line keep its last
 dates and be flagged "schedule item gone" (recommended), or fall back to typed dates? Asked 31/10/2026.
 
+Answer (Vincent, 31/10/2026): keep the last dates, with a flag. The difference is that the link has disappeared and the values have become static.
+
 ### Q3
 
 On schedule upload, PMT auto-suggests links by name match (`app/programme.py:261`, similarity 0.6 or more) and
 creates them without asking; in Neo's test it silently linked a line. Keep auto-linking, or ask first?
 Asked 31/10/2026.
+
+Answer (Vincent, 31/10/2026): ask first.
 
 ### Q4
 
