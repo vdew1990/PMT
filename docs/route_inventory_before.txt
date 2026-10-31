@@ -123,6 +123,7 @@ APIRoute	GET	/api/p/{pid}/drill	drill	J	None	None	True	get_con	-	drill_api_p__pi
 APIRoute	POST	/api/p/{pid}/nodes	add_node	J	None	None	True	get_con	-	add_node_api_p__pid__nodes_post
 APIRoute	PUT	/api/p/{pid}/nodes/{nid}	edit_node	J	None	None	True	get_con	-	edit_node_api_p__pid__nodes__nid__put
 APIRoute	POST	/api/p/{pid}/nodes/{nid}/window	node_window	J	None	None	True	get_con	-	node_window_api_p__pid__nodes__nid__window_post
+APIRoute	DELETE	/api/p/{pid}/nodes/{nid}/schedule-link-lost	node_link_lost_dismiss	J	None	None	True	get_con	-	node_link_lost_dismiss_api_p__pid__nodes__nid__schedule_link_lost_delete
 APIRoute	POST	/api/p/{pid}/nodes/{nid}/window-reset	node_window_reset	J	None	None	True	get_con	-	node_window_reset_api_p__pid__nodes__nid__window_reset_post
 APIRoute	GET	/api/p/{pid}/programme/links	programme_links	J	None	None	True	get_con	-	programme_links_api_p__pid__programme_links_get
 APIRoute	POST	/api/p/{pid}/programme/links	programme_link_add	J	None	None	True	get_con	-	programme_link_add_api_p__pid__programme_links_post
