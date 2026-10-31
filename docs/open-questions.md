@@ -133,3 +133,9 @@ check stays OK and untouched. Fictional example: GL $300k, accruals $25k, remain
 Oct = $80k, EAC $405k in both. Side effects for Finance to accept: CMT CTC per line exceeds PMT CTC by the accruals,
 and the Cash Flow sheet shows them as next-month cash. Alternative (b): fill W with accruals as the template was
 designed, but G48 then shows ERROR on every export. Agree with (c)? Asked 31/10/2026.
+
+Answer (Vincent, 31/10/2026): no, fill W with the accruals, and correct the ERROR check in the CMT instead (the G48
+check must accept correct accruals, for example by comparing GL CTD plus W with the forecast sheet's CTD). Working
+detail, to confirm in the build plan: the open status-month remainder (option H) is not an accrual, so on a mid-month
+export it goes into the first forecast month, labelled provisional; at close it is zero (Q10). The check correction is
+made in PMT's stripped template and reported to Finance as a fix to their template.
