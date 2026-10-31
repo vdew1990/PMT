@@ -1270,13 +1270,23 @@ async def programme_upload(pid: int, file: UploadFile = File(...), layer: str = 
                           "AND (link_item_id IS NOT NULL OR link_node_id IS NOT NULL)", (pid, layer)):
         keep[(o["wbs"], o["name"])] = o
         keep_name.setdefault(o["name"], o)
+    windows_saved = programme.save_window_links(con, pid, layer)    # the delete below cascades to window_link: put them back after
     con.execute("DELETE FROM programme_task WHERE project_id=? AND COALESCE(layer,'internal')=?", (pid, layer))
-    relinked = 0
+    relinked, used = 0, set()
     for i, t in enumerate(tasks):
         old = keep.get((t.get("wbs"), t.get("name"))) or keep_name.get(t.get("name"))
         extra = dict(link_item_id=old["link_item_id"], link_node_id=old["link_node_id"]) if old else {}
         relinked += 1 if old else 0
+        used.add(id(old))
         db.insert(con, "programme_task", dict(project_id=pid, source=source, seq=i, layer=layer, **t, **extra))
+    lost = programme.restore_window_links(con, pid, layer, windows_saved)
+    for o in {id(o): o for o in keep.values()}.values():                 # task links (line or claim item) whose task is gone
+        if id(o) not in used and o["link_node_id"]:
+            n = db.one(con, "SELECT code, name, start_date, end_date FROM cbs_node WHERE id=?", (o["link_node_id"],)) or {}
+            lost.append(dict(kind="task", node_id=o["link_node_id"], code=n.get("code"), name=n.get("name"), role="both", task=o["name"], wbs=o["wbs"],
+                             start=n.get("start_date"), end=n.get("end_date")))
+            db.log(con, pid, "Schedule item gone", f"{n.get('code')} {n.get('name')}: no longer follows '{o['name']}' (WBS {o['wbs'] or '-'}); "
+                                                   f"the window {n.get('start_date') or '-'} to {n.get('end_date') or '-'} is kept as typed dates")
     s = db.project_settings(con, pid)
     s["programme_file" if layer == "internal" else "programme_file_upstream"] = dict(name=file.filename, source=source, tasks=len(tasks))
     db.update(con, "project", pid, {"settings_json": json.dumps(s)})
@@ -1284,7 +1294,8 @@ async def programme_upload(pid: int, file: UploadFile = File(...), layer: str = 
     windows = programme.apply(con, pid, targets=("costs",)) if layer == "internal" else {}     # the activity windows follow the schedule
     programme.apply(con, pid, targets=("claims",))                                              # and so do claim lines linked to tasks
     return {"tasks": len(tasks), "source": source, "auto_linked": linked, "relinked": relinked,
-            "windows": windows.get("nodes", 0), "windows_kept": windows.get("kept", 0), "warnings": windows.get("warnings", [])}
+            "windows": windows.get("nodes", 0), "windows_kept": windows.get("kept", 0), "warnings": windows.get("warnings", []),
+            "links_lost": lost}
 
 
 @router.get("/api/p/{pid}/programme/file")

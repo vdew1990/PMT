@@ -282,6 +282,43 @@ def suggest(con, pid):
     return n_upd
 
 
+def save_window_links(con, pid, layer):
+    """Before a schedule re-upload deletes the layer's tasks (and, by cascade, every window_link on them): the links with the
+    WBS and name of their task, so they can be put back on the new tasks."""
+    return db.rows(con, "SELECT w.node_id, w.role, w.edge, w.suspended, t.wbs, t.name AS task, n.code, n.name, n.start_date, n.end_date "
+                        "FROM window_link w JOIN programme_task t ON t.id=w.task_id JOIN cbs_node n ON n.id=w.node_id "
+                        "WHERE w.project_id=? AND COALESCE(t.layer,'internal')=? ORDER BY w.node_id, w.role", (pid, layer))
+
+
+def restore_window_links(con, pid, layer, saved):
+    """After the re-upload: each saved link goes back on the new task with the same WBS and name, else the same name alone
+    (the key the task links use), with its edge and suspended (typed override) state. A link whose task is gone is dropped,
+    not re-pointed: the line keeps its current dates as typed values. Returns the lines that lost a link."""
+    new = db.rows(con, "SELECT id, wbs, name FROM programme_task WHERE project_id=? AND COALESCE(layer,'internal')=? ORDER BY seq", (pid, layer))
+    by_key, by_name = {}, {}
+    for t in new:
+        by_key.setdefault((t["wbs"], t["name"]), t["id"])
+        by_name.setdefault(t["name"], t["id"])
+    lost = []
+    for w in saved:
+        tid = by_key.get((w["wbs"], w["task"])) or by_name.get(w["task"])
+        if tid:
+            db.insert(con, "window_link", dict(project_id=pid, node_id=w["node_id"], role=w["role"], task_id=tid, edge=w["edge"], suspended=w["suspended"]))
+            continue
+        lost.append(dict(kind="window", node_id=w["node_id"], code=w["code"], name=w["name"], role=w["role"], task=w["task"], wbs=w["wbs"],
+                         start=w["start_date"], end=w["end_date"]))
+    from . import changelog
+    for nid in sorted({x["node_id"] for x in lost}):
+        n = db.one(con, "SELECT window_months FROM cbs_node WHERE id=?", (nid,))
+        if n and n["window_months"]:          # a duration only lasts while a schedule item drives the other end: both dates are now static
+            with changelog.via("Schedule re-upload: schedule item gone"):
+                db.update(con, "cbs_node", nid, {"window_months": None})
+    for x in lost:
+        db.log(con, pid, "Schedule item gone", f"{x['code']} {x['name']}: {x['role']} no longer follows '{x['task']}' (WBS {x['wbs'] or '-'}); "
+                                               f"the window {x['start'] or '-'} to {x['end'] or '-'} is kept as typed dates")
+    return lost
+
+
 def apply(con, pid, targets=("claims", "costs"), only_empty=False):
     """Copy dates from linked tasks. Several tasks on one target widen it to the earliest start and latest finish."""
     tasks = db.rows(con, "SELECT * FROM programme_task WHERE project_id=? AND COALESCE(layer,'internal')='internal'", (pid,))
