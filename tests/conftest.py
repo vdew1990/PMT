@@ -31,10 +31,13 @@ def demo_dir(tmp_path_factory):
 
 
 @pytest.fixture(scope="module")
-def demo():
-    """A fully seeded demonstration project in a fresh database."""
+def demo(tmp_path_factory):
+    """A fully seeded demonstration project in a fresh database.
+
+    Each module gets its own new directory, so a later module never reopens an earlier module's database (the old
+    name used id(object()), which repeats) and never hits engine or id caches keyed on the database path."""
     from demo import build_demo
-    path = Path(_tmp) / f"demo-{os.getpid()}-{id(object())}.db"
+    path = tmp_path_factory.mktemp("demo-db") / "demo.db"
     os.environ["PMT_DB"] = str(path)
     db.DB_PATH = path
     db.init_db()
