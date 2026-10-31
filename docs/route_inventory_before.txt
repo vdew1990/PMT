@@ -123,6 +123,7 @@ APIRoute	GET	/api/p/{pid}/drill	drill	J	None	None	True	get_con	-	drill_api_p__pi
 APIRoute	POST	/api/p/{pid}/nodes	add_node	J	None	None	True	get_con	-	add_node_api_p__pid__nodes_post
 APIRoute	PUT	/api/p/{pid}/nodes/{nid}	edit_node	J	None	None	True	get_con	-	edit_node_api_p__pid__nodes__nid__put
 APIRoute	POST	/api/p/{pid}/nodes/{nid}/window	node_window	J	None	None	True	get_con	-	node_window_api_p__pid__nodes__nid__window_post
+APIRoute	DELETE	/api/p/{pid}/nodes/{nid}/schedule-link-lost	node_link_lost_dismiss	J	None	None	True	get_con	-	node_link_lost_dismiss_api_p__pid__nodes__nid__schedule_link_lost_delete
 APIRoute	POST	/api/p/{pid}/nodes/{nid}/window-reset	node_window_reset	J	None	None	True	get_con	-	node_window_reset_api_p__pid__nodes__nid__window_reset_post
 APIRoute	GET	/api/p/{pid}/programme/links	programme_links	J	None	None	True	get_con	-	programme_links_api_p__pid__programme_links_get
 APIRoute	POST	/api/p/{pid}/programme/links	programme_link_add	J	None	None	True	get_con	-	programme_link_add_api_p__pid__programme_links_post
@@ -318,6 +319,9 @@ APIRoute	GET	/api/p/{pid}/programme/file	programme_file	J	None	None	True	get_con
 APIRoute	GET	/api/p/{pid}/programme/tasks	programme_tasks	J	None	None	True	get_con	-	programme_tasks_api_p__pid__programme_tasks_get
 APIRoute	PUT	/api/p/{pid}/programme/tasks/{tid}	programme_task_link	J	None	None	True	get_con	-	programme_task_link_api_p__pid__programme_tasks__tid__put
 APIRoute	POST	/api/p/{pid}/programme/auto-link	programme_autolink	J	None	None	True	get_con	-	programme_autolink_api_p__pid__programme_auto_link_post
+APIRoute	GET	/api/p/{pid}/programme/suggestions	programme_suggestions	J	None	None	True	get_con	-	programme_suggestions_api_p__pid__programme_suggestions_get
+APIRoute	POST	/api/p/{pid}/programme/suggestions/accept	programme_suggestions_accept	J	None	None	True	get_con	-	programme_suggestions_accept_api_p__pid__programme_suggestions_accept_post
+APIRoute	POST	/api/p/{pid}/programme/suggestions/reject	programme_suggestions_reject	J	None	None	True	get_con	-	programme_suggestions_reject_api_p__pid__programme_suggestions_reject_post
 APIRoute	POST	/api/p/{pid}/programme/apply	programme_apply	J	None	None	True	get_con	-	programme_apply_api_p__pid__programme_apply_post
 APIRoute	POST	/api/p/{pid}/programme/to-milestones	programme_to_ms	J	None	None	True	get_con	-	programme_to_ms_api_p__pid__programme_to_milestones_post
 APIRoute	DELETE	/api/p/{pid}/programme	programme_clear	J	None	None	True	get_con	-	programme_clear_api_p__pid__programme_delete

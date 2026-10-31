@@ -305,6 +305,24 @@ def test_clone_structure_copies_no_data(demo, blank):
     assert db.scalar(blank, "SELECT initialised FROM project WHERE id=?", (dst,)) == 0
 
 
+def test_clone_copies_supplier_rates_and_holidays_with_the_rate_card(blank):
+    """F3: cloning with the rate card also copies the supplier rates (on the copied supplier) and the public holidays."""
+    src = services.create_project(blank, dict(name="Src"))
+    sup = db.insert(blank, "resource", dict(project_id=src, kind="supplier", code="S30X", name="Sparkies Pty Ltd"))
+    db.insert(blank, "supplier_rate", dict(project_id=src, resource_id=sup, role="Electrician", unit="hr", rate=95, ot_rate=140, nt_hours=8, allowance=60))
+    db.insert(blank, "holiday", dict(project_id=src, day="2026-12-25", name="Christmas Day"))
+    db.insert(blank, "holiday", dict(project_id=src, day="2027-01-26", name="Australia Day"))
+    dst = services.create_project(blank, dict(name="Dst"), from_template=src, include=dict(resources=True, rate_card=True))
+    rate = db.one(blank, "SELECT r.role, r.unit, r.rate, r.ot_rate, r.nt_hours, r.allowance, s.code, s.project_id FROM supplier_rate r "
+                         "JOIN resource s ON s.id=r.resource_id WHERE r.project_id=?", (dst,))
+    assert rate == dict(role="Electrician", unit="hr", rate=95, ot_rate=140, nt_hours=8, allowance=60, code="S30X", project_id=dst)
+    assert [(h["day"], h["name"]) for h in db.rows(blank, "SELECT day, name FROM holiday WHERE project_id=? ORDER BY day", (dst,))] == \
+        [("2026-12-25", "Christmas Day"), ("2027-01-26", "Australia Day")]
+    bare = services.create_project(blank, dict(name="Bare"), from_template=src, include=dict(resources=True))
+    assert db.scalar(blank, "SELECT COUNT(*) FROM supplier_rate WHERE project_id=?", (bare,)) == 0
+    assert db.scalar(blank, "SELECT COUNT(*) FROM holiday WHERE project_id=?", (bare,)) == 0
+
+
 def test_wipe_keeps_identity_and_standard_cbs(blank):
     pid = services.create_project(blank, dict(name="W", code="W1"))
     parent = db.one(blank, "SELECT id FROM cbs_node WHERE project_id=? AND category='PS04'", (pid,))["id"]

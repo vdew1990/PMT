@@ -4,12 +4,71 @@ import { pickNode } from '../scope.js';
 import { go, render } from '../app.js';
 
 // after the schedule moves a line's activity window: typed (MANUAL) months that now sit outside it. They are kept, never cleared.
-function warnWindows(list) {
-  if (!list || !list.length) return;
-  modal({ title: `Typed forecast months outside the new activity window (${list.length} lines)`, size: 'wide', body: h('div', {},
+function warnWindows(list, onClose) {
+  if (!list || !list.length) return onClose && onClose();
+  modal({ onClose, title: `Typed forecast months outside the new activity window (${list.length} lines)`, size: 'wide', body: h('div', {},
     h('div', { class: 'note warn', style: { marginBottom: '10px' } }, 'The schedule moved the activity window of these lines. Their typed (MANUAL) months were kept as they were. The months outside the window are outlined on Cost control: move them, clear them, or set the window by hand on that line.'),
     table([{ label: 'CBS', f: (x) => x.code, cls: 'mono' }, { label: 'Line', f: (x) => x.name }, { label: 'New window', f: (x) => `${fmt.month(x.start)} to ${fmt.month(x.end)}` }, { label: 'Typed months outside it', f: (x) => x.months.map((m) => fmt.month(m)).join(', ') }], list)),
     actions: [{ label: 'Close', kind: 'ghost', onClick: () => {} }, { label: 'Open Cost control', onClick: () => go('costcontrol') }] });
+}
+
+const ROLE = { span: 'Whole window', both: 'Start and Stop', start: 'Start', stop: 'Stop' };
+const linesLost = (list) => new Set((list || []).map((x) => x.node_id)).size;
+
+// after an upload: CBS lines whose schedule item is no longer in the schedule. Their dates stay, as typed values (Q2).
+function lostDialog(list, onClose) {
+  if (!list || !list.length) return onClose && onClose();
+  const n = linesLost(list);
+  const md = modal({ onClose, title: `Lines that lost their schedule link (${n} ${n === 1 ? 'line' : 'lines'})`, size: 'wide', body: h('div', {},
+    h('div', { class: 'note warn', style: { marginBottom: '10px' } }, 'These schedule items are not in the uploaded schedule any more. Each line keeps the dates it had, now as typed values, and no longer follows the schedule. Link it to another schedule item, or leave it set by hand on Cost control.'),
+    table([{ label: 'CBS', f: (x) => x.code || '', cls: 'mono' }, { label: 'Line', f: (x) => x.name || '' }, { label: 'Followed', f: (x) => ROLE[x.role] || x.role || '' },
+      { label: 'Schedule item (gone)', f: (x) => `${x.wbs ? x.wbs + ' ' : ''}${x.task || ''}` }, { label: 'Start kept', f: (x) => fmt.date(x.start) }, { label: 'End kept', f: (x) => fmt.date(x.end) }], list)),
+    actions: [{ label: 'Close', kind: 'ghost', onClick: () => {} }, { label: 'Open Cost control', onClick: () => go('costcontrol') }] });
+  md.el.querySelector('.mf .btn')?.focus();
+}
+
+// Q3: name matches are suggestions only. One row per suggestion with Accept and Reject; Accept all links every one.
+// Nothing is linked until the user accepts. Rejected ones are not offered again (the server keeps them).
+export async function suggestionsDialog(list, onClose) {
+  if (!list) list = await api.get(p('/programme/suggestions'));
+  if (!list.length) return onClose && onClose();
+  let changed = false; const warnings = [];
+  const box = h('div'); const status = h('div', { role: 'status', class: 'small muted', style: { minHeight: '1.4em', marginTop: '8px' } });
+  const pick = (s) => ({ task_id: s.task_id, kind: s.kind, target_id: s.target_id });
+  const label = (s) => `${s.task} to ${s.kind === 'item' ? 'claim item' : 'CBS line'} ${s.target_code || ''} ${s.target_name || ''}`.replace(/\s+/g, ' ').trim();
+  const md = modal({ title: 'Suggested schedule links', size: 'wide', onClose: () => { if (changed) render(); warnWindows(warnings, onClose); }, body: h('div', {},
+    h('div', { class: 'note', style: { marginBottom: '10px' } }, 'The schedule task names match these CBS lines and claim items. Nothing is linked until you accept. An accepted link makes the line or claim item follow the task\'s dates. A rejected suggestion is not offered again.'), box, status),
+    actions: [{ label: 'Close', kind: 'ghost', onClick: () => {} }, { label: 'Accept all', onClick: () => act('accept', null) }] });
+  const allBtn = md.el.querySelectorAll('.mf .btn')[1];
+  async function act(what, s, i) {
+    const r = await api.post(p(`/programme/suggestions/${what}`), s ? { items: [pick(s)] } : { all: true });
+    const n = what === 'accept' ? r.linked : r.rejected;
+    if (what === 'accept') { if (n) changed = true; warnings.push(...(r.warnings || [])); }
+    list = r.suggestions || [];
+    const msg = s ? `${what === 'accept' ? (n ? 'Linked' : 'Not linked (no longer suggested)') : 'Rejected'}: ${label(s)}.` : `${n} ${n === 1 ? 'link' : 'links'} accepted.`;
+    if (!s) { toast(msg); return; }
+    status.textContent = msg; draw(i);
+  }
+  function draw(focusAt) {
+    if (!list.length) { clear(box).append(h('div', { class: 'muted' }, 'No suggestions left.')); allBtn.disabled = true; allBtn.style.display = 'none'; md.el.querySelector('.mf .btn').focus(); return; }
+    clear(box).append(table([
+      { label: 'Schedule task', f: (s) => h('span', {}, s.wbs ? h('span', { class: 'mono muted' }, s.wbs + ' ') : null, s.task, h('div', { class: 'small muted' }, `${fmt.date(s.start)}${s.finish && s.finish !== s.start ? ' to ' + fmt.date(s.finish) : ''}`)) },
+      { label: 'Would link to', f: (s) => h('span', {}, h('span', { class: 'small muted' }, s.kind === 'item' ? 'Claim item ' : 'CBS line '), h('span', { class: 'mono' }, s.target_code || ''), ' ', s.target_name || '') },
+      { label: 'Match', r: true, title: 'How closely the names match (60% or more is suggested)', f: (s) => `${Math.round((s.score || 0) * 100)}%` },
+      { label: 'Decision', f: (s, i) => h('span', { class: 'row', style: { gap: '6px', flexWrap: 'nowrap' } },
+        h('button', { class: 'btn sm', 'aria-label': 'Accept: ' + label(s), onclick: (e) => run(e, () => act('accept', s, i)) }, 'Accept'),
+        h('button', { class: 'btn ghost sm', 'aria-label': 'Reject: ' + label(s), onclick: (e) => run(e, () => act('reject', s, i)) }, 'Reject')) }], list, { cls: 'notools' }));   // notools: the table tools would re-order the rows under the keyboard focus
+    allBtn.textContent = `Accept all (${list.length})`;
+    const btns = box.querySelectorAll('tbody button');
+    if (focusAt != null) btns[Math.min(focusAt, list.length - 1) * 2]?.focus(); else btns[0]?.focus();
+  }
+  async function run(e, fn) { const b = e.currentTarget; b.disabled = true; try { await fn(); } catch (err) { toast(err.message || String(err), 'bad'); b.disabled = false; } }
+  draw();
+}
+
+// After an upload: what was lost first, then the typed months outside a moved window, then the suggested links.
+function afterUpload(r) {
+  lostDialog(r.links_lost, () => warnWindows(r.warnings, () => (r.suggestions || []).length && suggestionsDialog(r.suggestions)));
 }
 
 
@@ -23,7 +82,9 @@ export function scheduleDrop(onDone, layer = 'internal') {
   file.onchange = () => file.files[0] && upload(file.files[0]);
   async function upload(f) {
     toast('Reading ' + f.name + (/\.mpp$/i.test(f.name) ? '... the first MS Project file can take a minute while PMT prepares its reader' : '...'));
-    try { const r = await api.upload(p('/programme/upload?layer=' + layer), f); toast(`${r.tasks} tasks read from ${r.source.toUpperCase()}; ${r.relinked || 0} links kept, ${r.auto_linked} linked by name; ${r.windows || 0} activity windows updated${r.windows_kept ? `, ${r.windows_kept} kept (set by hand)` : ''}`); if (onDone) await onDone(r); else await render(); warnWindows(r.warnings); } catch (e) { toast(e.message, 'bad'); }
+    try { const r = await api.upload(p('/programme/upload?layer=' + layer), f); const ns = (r.suggestions || []).length; const nl = linesLost(r.links_lost);
+      toast(`${r.tasks} tasks read from ${r.source.toUpperCase()}; ${r.relinked || 0} ${r.relinked === 1 ? 'link' : 'links'} kept; ${ns} suggested ${ns === 1 ? 'link' : 'links'} waiting for your review; ${nl} ${nl === 1 ? 'line' : 'lines'} lost ${nl === 1 ? 'its' : 'their'} schedule link; ${r.windows || 0} activity windows updated${r.windows_kept ? `, ${r.windows_kept} kept (set by hand)` : ''}`);
+      if (onDone) await onDone(r); else await render(); afterUpload(r); } catch (e) { toast(e.message, 'bad'); }
   }
   return h('div', {}, dz, file);
 }
@@ -37,6 +98,7 @@ async function updatePage(root) {
   const contract = await api.get(p('/contract'));
   const leaves = contract.items.filter((i) => i.is_leaf && i.kind !== 'variation');
   const lines = data.rows.filter((r) => r.kind === 'line');
+  const sugg = await api.get(p('/programme/suggestions')).catch(() => []);
   const info = state.project.settings?.programme_file;
   root.append(h('div', { class: 'pagehead' }, h('div', {}, h('h1', {}, 'Update project schedule'), h('div', { class: 'sub' }, 'Upload a new version of the internal or the client schedule, link its tasks and apply their dates to the claim schedule and the cost forecast. Every date can still be edited by hand.')), h('div', { class: 'sp' }), h('button', { class: 'btn ghost', onclick: () => go('programme') }, '\u2190 Back to the schedule')));
 
@@ -80,7 +142,7 @@ async function updatePage(root) {
   const search = h('input', { type: 'search', placeholder: 'Search tasks...', style: { width: '240px' }, oninput: debounce(() => { q = search.value.toLowerCase(); draw(); }, 150) });
   const only = h('input', { type: 'checkbox', checked: false });
   root.append(h('div', { class: 'card' }, h('div', { class: 'ch' }, h('h2', {}, 'Project schedule tasks'), h('span', { class: 'sp' }),
-    h('button', { class: 'btn ghost sm', onclick: async () => { const r = await api.post(p('/programme/auto-link')); toast(`${r.linked} tasks linked by name`); render(); } }, 'Link by name'),
+    sugg.length ? h('button', { class: 'btn ghost sm', onclick: () => suggestionsDialog() }, `Review suggested links (${sugg.length})`) : null,
     h('button', { class: 'btn ghost sm', onclick: async () => { const r = await api.post(p('/programme/to-milestones'), {}); toast(`${r.created} milestones and phases copied to the project programme`); } }, 'Copy milestones to project'),
     h('button', { class: 'btn danger sm', onclick: async () => { if (await confirmBox('Remove the uploaded project schedule? Dates already applied stay as they are.', 'Remove', true)) { await api.del(p('/programme')); render(); } } }, 'Remove programme')),
     h('div', { class: 'note', style: { marginBottom: '10px' } }, 'Link each task to the claim item it drives and/or the CBS line or group it drives. Several tasks on one target widen it to the earliest start and the latest finish. Apply copies the dates across; nothing changes until you press an Apply button.'),
@@ -136,7 +198,7 @@ const t0 = (d) => (d ? Date.parse(d) : NaN);
 export default async function schedule(root, params = {}) {
   if (params.view === 'update') return updatePage(root);
   const layer = params.layer === 'upstream' ? 'upstream' : 'internal';
-  const [all, fi, links] = await Promise.all([api.get(p('/programme/tasks')), api.get(p(`/programme/file?layer=${layer}&info=1`)), api.get(p('/programme/links'))]);
+  const [all, fi, links, sugg] = await Promise.all([api.get(p('/programme/tasks')), api.get(p(`/programme/file?layer=${layer}&info=1`)), api.get(p('/programme/links')), api.get(p('/programme/suggestions')).catch(() => [])]);
   const drives = {}; [...links.span, ...links.anchors].forEach((x) => { (drives[x.task_id] ||= new Set()).add(x.code); });
   const tasks = all.filter((t) => (layer === 'upstream') === (t.layer === 'upstream'));
   const other = all.filter((t) => (layer === 'upstream') !== (t.layer === 'upstream')).length;
@@ -157,6 +219,9 @@ export default async function schedule(root, params = {}) {
   root.append(h('div', { class: 'row', style: { gap: '10px', marginBottom: '14px', alignItems: 'stretch' } }, h('div', { style: { flex: 1 } }, upd),
     fi.has_file ? h('a', { class: 'btn', href: p(`/programme/file?layer=${layer}`), style: { alignSelf: 'center' }, title: `Download ${fi.filename} as uploaded` }, `Download ${fi.filename}`)
       : h('span', { class: 'small muted', style: { alignSelf: 'center' } }, tasks.length ? 'The original file was not kept for this version. Upload it again under Update to download it.' : '')));
+  if (sugg.length) root.append(h('div', { class: 'note row', style: { marginBottom: '14px', gap: '10px', alignItems: 'center' } },
+    h('span', { style: { flex: 1 } }, `${sugg.length} suggested ${sugg.length === 1 ? 'link is' : 'links are'} waiting for your review. Name matches are not linked until you accept them.`),
+    h('button', { class: 'btn sm', onclick: () => suggestionsDialog() }, 'Review suggested links')));
   if (!tasks.length) {
     root.append(empty(`No ${name.toLowerCase()} loaded`, other ? `The ${layer === 'upstream' ? 'internal' : 'client'} schedule has ${other} tasks: use the buttons above to switch.` : 'Use Update to upload an MS Project file, Excel or PDF. If the schedule was set up in Project setup it shows here.'));
     return;

@@ -8,6 +8,7 @@ The tasks are only a starting point. Each can be linked to a claim schedule item
 copies the dates across, and every date can still be edited by hand afterwards.
 """
 import csv
+import json
 import re
 import subprocess
 import os
@@ -258,28 +259,161 @@ def _score(a, b):
     return len(a & b) / min(len(a), len(b)) * (len(a & b) / len(a | b)) ** 0.25
 
 
-def suggest(con, pid):
+def _candidates(con, pid):
+    """Name matches between the internal schedule's tasks and the claim items / CBS lines, for the fields a task has not linked yet."""
     items = [i for i in db.rows(con, "SELECT id, ref, description FROM contract_item WHERE project_id=? AND kind!='variation'", (pid,))
              if not db.scalar(con, "SELECT COUNT(*) FROM contract_item WHERE parent_id=?", (i["id"],))]
     nodes = db.rows(con, "SELECT id, code, name, COALESCE(function,'') f, COALESCE(scope,'') s, kind FROM cbs_node WHERE project_id=? AND active=1", (pid,))
     it_tok = [(i, _tok(i["description"])) for i in items]
     nd_tok = [(n, _tok(f"{n['name']} {n['f']} {n['s']}")) for n in nodes]
-    n_upd = 0
-    for t in db.rows(con, "SELECT * FROM programme_task WHERE project_id=? AND COALESCE(layer,'internal')='internal'", (pid,)):
+    out = []
+    for t in db.rows(con, "SELECT * FROM programme_task WHERE project_id=? AND COALESCE(layer,'internal')='internal' ORDER BY seq", (pid,)):
         tk = _tok(t["name"])
-        upd = {}
+        base = dict(task_id=t["id"], wbs=t["wbs"], task=t["name"], start=t["start_date"], finish=t["finish_date"])
         if not t["link_item_id"] and it_tok:
             sc, best = max(((_score(tk, tt), i) for i, tt in it_tok), key=lambda x: x[0])
             if sc >= 0.6:
-                upd["link_item_id"] = best["id"]
+                out.append(dict(base, kind="item", target_id=best["id"], target_code=best["ref"], target_name=best["description"], score=round(sc, 2)))
         if not t["link_node_id"] and nd_tok:
             sc, best = max(((_score(tk, tt), n) for n, tt in nd_tok), key=lambda x: x[0])
             if sc >= 0.6:
-                upd["link_node_id"] = best["id"]
-        if upd:
-            db.update(con, "programme_task", t["id"], upd)
-            n_upd += 1
-    return n_upd
+                out.append(dict(base, kind="node", target_id=best["id"], target_code=best["code"], target_name=best["name"], score=round(sc, 2)))
+    return out
+
+
+REJECTED = "programme_suggest_rejected"     # project settings: suggestions the user turned down, by task WBS and name, so a re-upload does not offer them again
+
+
+def _key(s):
+    return f"{s['wbs'] or ''}|{s['task']}|{s['kind']}|{s['target_id']}"
+
+
+def suggestions(con, pid):
+    """Links the schedule suggests by name match. Nothing is linked until the user accepts them (one by one or all)."""
+    rejected = set(db.project_settings(con, pid).get(REJECTED) or [])
+    return [s for s in _candidates(con, pid) if _key(s) not in rejected]
+
+
+def _picked(con, pid, picks):
+    cur = suggestions(con, pid)
+    if picks is None:
+        return cur
+    want = {(int(p["task_id"]), p["kind"], int(p["target_id"])) for p in picks if p.get("task_id") and p.get("kind") in ("item", "node") and p.get("target_id")}
+    return [s for s in cur if (s["task_id"], s["kind"], s["target_id"]) in want]
+
+
+def accept_suggestions(con, pid, picks=None):
+    """Link the accepted suggestions (picks: [{task_id, kind, target_id}]; None = accept all). Only current suggestions are linked,
+    so a task linked meanwhile is not overwritten. The dates then follow the schedule as for any link."""
+    n_upd = 0
+    picked = _picked(con, pid, picks)
+    for s in picked:
+        db.update(con, "programme_task", s["task_id"], {"link_item_id" if s["kind"] == "item" else "link_node_id": s["target_id"]})
+        n_upd += 1
+    clear_link_lost(con, pid, [s["target_id"] for s in picked if s["kind"] == "node"])
+    warnings = []
+    if n_upd:
+        warnings = apply(con, pid, targets=("costs",)).get("warnings", [])
+        apply(con, pid, targets=("claims",))
+    return {"linked": n_upd, "warnings": warnings, "suggestions": suggestions(con, pid)}
+
+
+def reject_suggestions(con, pid, picks=None):
+    """Turn suggestions down (None = all): they are not offered again, also after a re-upload of the same tasks."""
+    got = _picked(con, pid, picks)
+    st = db.project_settings(con, pid)
+    st[REJECTED] = sorted(set(st.get(REJECTED) or []) | {_key(s) for s in got})
+    db.update(con, "project", pid, {"settings_json": json.dumps(st)})
+    return {"rejected": len(got), "suggestions": suggestions(con, pid)}
+
+
+def suggest(con, pid):
+    """The "Link by name" button: link every current suggestion at once. Returns the number of tasks linked."""
+    got = suggestions(con, pid)
+    for s in got:
+        db.update(con, "programme_task", s["task_id"], {"link_item_id" if s["kind"] == "item" else "link_node_id": s["target_id"]})
+    clear_link_lost(con, pid, [s["target_id"] for s in got if s["kind"] == "node"])
+    return len({s["task_id"] for s in got})
+
+
+def save_window_links(con, pid, layer):
+    """Before a schedule re-upload deletes the layer's tasks (and, by cascade, every window_link on them): the links with the
+    WBS and name of their task, so they can be put back on the new tasks."""
+    return db.rows(con, "SELECT w.node_id, w.role, w.edge, w.suspended, t.wbs, t.name AS task, n.code, n.name, n.start_date, n.end_date "
+                        "FROM window_link w JOIN programme_task t ON t.id=w.task_id JOIN cbs_node n ON n.id=w.node_id "
+                        "WHERE w.project_id=? AND COALESCE(t.layer,'internal')=? ORDER BY w.node_id, w.role", (pid, layer))
+
+
+def flag_link_lost(con, pid, lost):
+    """Q13: mark every line in `lost` (from a schedule re-upload) as having lost its schedule item. The flag is a column on
+    the line, so it syncs to every copy through the change log, and it stays until the line is linked again or the flag is
+    dismissed. Several lost items on one line (Start and Stop) are kept together, newest last."""
+    if not lost:
+        return
+    from . import changelog
+    today = date.today().isoformat()
+    by_node = {}
+    for x in lost:
+        by_node.setdefault(x["node_id"], []).append(dict(date=today, task=x.get("task"), wbs=x.get("wbs"), role=x.get("role")))
+    for nid, new in sorted(by_node.items()):
+        have = link_lost(db.scalar(con, "SELECT schedule_link_lost FROM cbs_node WHERE id=?", (nid,), None)) or []
+        with changelog.via("Schedule re-upload: schedule item gone"):
+            db.update(con, "cbs_node", nid, {"schedule_link_lost": json.dumps(have + new)})
+    db.bump(con, pid)
+
+
+def link_lost(raw):
+    """The stored flag as a list of {date, task, wbs, role}, or None when the line is not flagged."""
+    if not raw:
+        return None
+    try:
+        v = json.loads(raw)
+    except (TypeError, ValueError):
+        return [dict(date=None, task=str(raw), wbs=None, role=None)]
+    return v if isinstance(v, list) and v else None
+
+
+def clear_link_lost(con, pid, nids, why="Linked to the schedule again"):
+    """Take the lost-link flag off these lines (a new link to the schedule, or the user dismissed it). Returns how many were cleared."""
+    from . import changelog
+    n = 0
+    for nid in {int(x) for x in nids if x}:
+        if db.scalar(con, "SELECT schedule_link_lost FROM cbs_node WHERE id=? AND project_id=?", (nid, pid), None):
+            with changelog.via(why):
+                db.update(con, "cbs_node", nid, {"schedule_link_lost": None})
+            n += 1
+    if n:
+        db.bump(con, pid)
+    return n
+
+
+def restore_window_links(con, pid, layer, saved):
+    """After the re-upload: each saved link goes back on the new task with the same WBS and name, else the same name alone
+    (the key the task links use), with its edge and suspended (typed override) state. A link whose task is gone is dropped,
+    not re-pointed: the line keeps its current dates as typed values. Returns the lines that lost a link."""
+    new = db.rows(con, "SELECT id, wbs, name FROM programme_task WHERE project_id=? AND COALESCE(layer,'internal')=? ORDER BY seq", (pid, layer))
+    by_key, by_name = {}, {}
+    for t in new:
+        by_key.setdefault((t["wbs"], t["name"]), t["id"])
+        by_name.setdefault(t["name"], t["id"])
+    lost = []
+    for w in saved:
+        tid = by_key.get((w["wbs"], w["task"])) or by_name.get(w["task"])
+        if tid:
+            db.insert(con, "window_link", dict(project_id=pid, node_id=w["node_id"], role=w["role"], task_id=tid, edge=w["edge"], suspended=w["suspended"]))
+            continue
+        lost.append(dict(kind="window", node_id=w["node_id"], code=w["code"], name=w["name"], role=w["role"], task=w["task"], wbs=w["wbs"],
+                         start=w["start_date"], end=w["end_date"]))
+    from . import changelog
+    for nid in sorted({x["node_id"] for x in lost}):
+        n = db.one(con, "SELECT window_months FROM cbs_node WHERE id=?", (nid,))
+        if n and n["window_months"]:          # a duration only lasts while a schedule item drives the other end: both dates are now static
+            with changelog.via("Schedule re-upload: schedule item gone"):
+                db.update(con, "cbs_node", nid, {"window_months": None})
+    for x in lost:
+        db.log(con, pid, "Schedule item gone", f"{x['code']} {x['name']}: {x['role']} no longer follows '{x['task']}' (WBS {x['wbs'] or '-'}); "
+                                               f"the window {x['start'] or '-'} to {x['end'] or '-'} is kept as typed dates")
+    return lost
 
 
 def apply(con, pid, targets=("claims", "costs"), only_empty=False):
@@ -422,6 +556,7 @@ def set_window(con, pid, nid, start, stop, months=None):
                 db.update(con, "window_link", row["id"], {"task_id": t["id"], "edge": edge, "suspended": 0})
             else:
                 db.insert(con, "window_link", dict(project_id=pid, node_id=nid, role=role, task_id=t["id"], edge=edge, suspended=0))
+            clear_link_lost(con, pid, [nid])
         else:
             cur = st.get(role)
             if cur and not row:                            # a link made the old way: keep it as a suspended anchor so "Return to schedule" works

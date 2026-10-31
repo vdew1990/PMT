@@ -58,6 +58,7 @@ MIGRATIONS = [
     ("revert_mark", "rev_id", "INTEGER"),                        # change_log id after the revert, for Redo
     ("cbs_node", "window_months", "INTEGER"),                  # typed duration (months) when the window is driven by a start or stop anchor plus a duration
     ("cbs_node", "window_manual", "INTEGER DEFAULT 0"),   # 1 = the activity window (start, end) was set by hand and ignores schedule updates
+    ("cbs_node", "schedule_link_lost", "TEXT"),   # JSON list [{date, task, wbs, role}]: schedule items this line followed that a re-upload no longer has (Q13); cleared on a new link or dismiss
     ("project", "archived_at", "TEXT"), ("project", "archived_by", "TEXT"),   # archived: in the project library, data kept
     ("project", "archive_summary", "TEXT"), ("project", "location", "TEXT"), ("project", "project_director", "TEXT"),
     # accruals: what kind, who for, every reference that can match the invoice, and how it was matched

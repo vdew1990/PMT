@@ -112,6 +112,13 @@ def node_window(pid: int, nid: int, body: dict, con=Depends(get_con)):
     return {"warnings": programme.set_window(con, pid, nid, body.get("start"), body.get("stop"), body.get("months"))}
 
 
+@router.delete("/api/p/{pid}/nodes/{nid}/schedule-link-lost")
+def node_link_lost_dismiss(pid: int, nid: int, con=Depends(get_con)):
+    """Dismiss the "schedule item gone" flag on a line (Q13): the user has dealt with it. Synced like any edit."""
+    services.get_node(con, pid, nid)
+    return {"cleared": programme.clear_link_lost(con, pid, [nid], why="Schedule item gone: flag dismissed")}
+
+
 @router.post("/api/p/{pid}/nodes/{nid}/window-reset")
 def node_window_reset(pid: int, nid: int, body: dict = None, con=Depends(get_con)):
     """Hand the line's Start and/or Stop back to the project schedule (the links typed over are switched on again)."""
@@ -142,6 +149,7 @@ def programme_link_add(pid: int, body: dict, con=Depends(get_con)):
                 db.update(con, "window_link", row["id"], vals)
             else:
                 db.insert(con, "window_link", dict(project_id=pid, node_id=nid, role=r, **vals))
+    programme.clear_link_lost(con, pid, [nid])
     return {"warnings": programme.apply(con, pid, targets=("costs",)).get("warnings", [])}
 
 
@@ -1270,21 +1278,33 @@ async def programme_upload(pid: int, file: UploadFile = File(...), layer: str = 
                           "AND (link_item_id IS NOT NULL OR link_node_id IS NOT NULL)", (pid, layer)):
         keep[(o["wbs"], o["name"])] = o
         keep_name.setdefault(o["name"], o)
+    windows_saved = programme.save_window_links(con, pid, layer)    # the delete below cascades to window_link: put them back after
     con.execute("DELETE FROM programme_task WHERE project_id=? AND COALESCE(layer,'internal')=?", (pid, layer))
-    relinked = 0
+    relinked, used = 0, set()
     for i, t in enumerate(tasks):
         old = keep.get((t.get("wbs"), t.get("name"))) or keep_name.get(t.get("name"))
         extra = dict(link_item_id=old["link_item_id"], link_node_id=old["link_node_id"]) if old else {}
         relinked += 1 if old else 0
+        used.add(id(old))
         db.insert(con, "programme_task", dict(project_id=pid, source=source, seq=i, layer=layer, **t, **extra))
+    lost = programme.restore_window_links(con, pid, layer, windows_saved)
+    for o in {id(o): o for o in keep.values()}.values():                 # task links (line or claim item) whose task is gone
+        if id(o) not in used and o["link_node_id"]:
+            n = db.one(con, "SELECT code, name, start_date, end_date FROM cbs_node WHERE id=?", (o["link_node_id"],)) or {}
+            lost.append(dict(kind="task", node_id=o["link_node_id"], code=n.get("code"), name=n.get("name"), role="both", task=o["name"], wbs=o["wbs"],
+                             start=n.get("start_date"), end=n.get("end_date")))
+            db.log(con, pid, "Schedule item gone", f"{n.get('code')} {n.get('name')}: no longer follows '{o['name']}' (WBS {o['wbs'] or '-'}); "
+                                                   f"the window {n.get('start_date') or '-'} to {n.get('end_date') or '-'} is kept as typed dates")
+    programme.flag_link_lost(con, pid, lost)                              # Q13: the line stays flagged, for every user, until dealt with
     s = db.project_settings(con, pid)
     s["programme_file" if layer == "internal" else "programme_file_upstream"] = dict(name=file.filename, source=source, tasks=len(tasks))
     db.update(con, "project", pid, {"settings_json": json.dumps(s)})
-    linked = programme.suggest(con, pid) if layer == "internal" else 0
+    suggested = programme.suggestions(con, pid) if layer == "internal" else []    # offered for the user to accept, not linked here
     windows = programme.apply(con, pid, targets=("costs",)) if layer == "internal" else {}     # the activity windows follow the schedule
     programme.apply(con, pid, targets=("claims",))                                              # and so do claim lines linked to tasks
-    return {"tasks": len(tasks), "source": source, "auto_linked": linked, "relinked": relinked,
-            "windows": windows.get("nodes", 0), "windows_kept": windows.get("kept", 0), "warnings": windows.get("warnings", [])}
+    return {"tasks": len(tasks), "source": source, "auto_linked": 0, "suggestions": suggested, "relinked": relinked,
+            "windows": windows.get("nodes", 0), "windows_kept": windows.get("kept", 0), "warnings": windows.get("warnings", []),
+            "links_lost": lost}
 
 
 @router.get("/api/p/{pid}/programme/file")
@@ -1309,6 +1329,8 @@ def programme_tasks(pid: int, con=Depends(get_con)):
 def programme_task_link(pid: int, tid: int, body: dict, con=Depends(get_con)):
     d = {k: body.get(k) for k in ("link_item_id", "link_node_id", "start_date", "finish_date", "name") if k in body}
     db.update(con, "programme_task", tid, d)
+    if d.get("link_node_id"):
+        programme.clear_link_lost(con, pid, [d["link_node_id"]])
     out = {"ok": True, "warnings": []}
     if "link_node_id" in d or "start_date" in d or "finish_date" in d:      # the linked line's activity window follows the schedule
         out["warnings"] = programme.apply(con, pid, targets=("costs",)).get("warnings", [])
@@ -1320,6 +1342,27 @@ def programme_task_link(pid: int, tid: int, body: dict, con=Depends(get_con)):
 @router.post("/api/p/{pid}/programme/auto-link")
 def programme_autolink(pid: int, con=Depends(get_con)):
     return {"linked": programme.suggest(con, pid)}
+
+
+@router.get("/api/p/{pid}/programme/suggestions")
+def programme_suggestions(pid: int, con=Depends(get_con)):
+    """Links suggested by name match, waiting for the user to accept or reject them."""
+    need_project(con, pid)
+    return programme.suggestions(con, pid)
+
+
+@router.post("/api/p/{pid}/programme/suggestions/accept")
+def programme_suggestions_accept(pid: int, body: dict, con=Depends(get_con)):
+    """Accept suggestions one by one (items: [{task_id, kind, target_id}]) or all of them (all: true)."""
+    need_project(con, pid)
+    return programme.accept_suggestions(con, pid, None if body.get("all") else (body.get("items") or []))
+
+
+@router.post("/api/p/{pid}/programme/suggestions/reject")
+def programme_suggestions_reject(pid: int, body: dict, con=Depends(get_con)):
+    """Reject suggestions one by one (items: [...]) or all of them (all: true); they are not offered again."""
+    need_project(con, pid)
+    return programme.reject_suggestions(con, pid, None if body.get("all") else (body.get("items") or []))
 
 
 @router.post("/api/p/{pid}/programme/apply")
