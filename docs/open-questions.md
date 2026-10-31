@@ -55,6 +55,8 @@ Build the Q4 rule now (engine change at `app/engine.py:284`, as fix F5 after F1 
 expected in the status month must sit in actuals or accruals, because the status month no longer carries forecast.
 Merlin checks it against D11 first. Asked 31/10/2026.
 
+Status (31/10/2026): paused by Vincent before any change, to reconsider the status month against accruals. Superseded by Q9.
+
 ### Q6
 
 CMT export template storage. Option A (Neo recommends): commit a values-stripped copy of Finance's CMT as the export
@@ -72,3 +74,23 @@ write PMT's actuals into the month columns as plain values? Asked 31/10/2026.
 
 CMT export, projects longer than the template's 31 month columns: show a 31 month window, or add columns?
 Asked 31/10/2026.
+
+### Q9
+
+How should the expected cost of the status month be treated between the status date and month-end close? Fictional
+example: Sep forecast $100k, $60k invoiced on 20/09, $40k of September work invoiced in October. EAC through September:
+- B (Q4 rule, CMT's own layout): status month out of CTC, accruals start from zero. EAC 100, 160, then 200 once the PM
+  accrues. This is the CMT dip.
+- C (default copy): the unlanded status-month forecast is proposed as a system accrual, which the PM confirms, reduces or
+  deletes and pushes forward at month end. EAC stays at 200. Accruals then include forecast-based amounts with nothing
+  to match when the invoice lands, so a matching rule is needed. Medium to large build.
+- H (hybrid, Merlin's narrow preference): the status month stays in CTC but only its unlanded remainder counts
+  (forecast minus actuals and accruals in that month). At close, every line with a remainder needs a review decision:
+  accrue it, roll it to next month, or drop it. EAC stays at 200, accruals stay cost incurred, and D11 is kept. Medium build.
+C and H give the same EAC and the same accruals at close. They differ only in what the unlanded amount is called during
+the month (proposed accrual in C, CTC in H). Choose B, C or H. Asked 31/10/2026.
+
+### Q10
+
+Must the month-end close be blocked until every line with an unlanded status-month remainder (or a proposed accrual)
+has a review decision (S3, E4)? Yes or no. Asked 31/10/2026.
