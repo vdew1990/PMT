@@ -54,3 +54,21 @@ So the status month never contributes to CTC; CTC starts the month after the mon
 Build the Q4 rule now (engine change at `app/engine.py:284`, as fix F5 after F1 to F4)? Effect: any cost still
 expected in the status month must sit in actuals or accruals, because the status month no longer carries forecast.
 Merlin checks it against D11 first. Asked 31/10/2026.
+
+### Q6
+
+CMT export template storage. Option A (Neo recommends): commit a values-stripped copy of Finance's CMT as the export
+template, built by a strip tool and proven clean by an allow-list test (only reviewed generic labels, no cached
+values, no pivot records, blank document properties). Option B: no template in the repo; PMT reads the template from
+a path in a local settings file (like `crm_link.txt`) and strips it at every export. Asked 31/10/2026.
+
+### Q7
+
+CMT export, Pronto sheets: fill the CMT's Pronto sheets (General Ledger, Commitments, PO Register, Labour, Revenue)
+from the Pronto rows PMT already stores, so the CMT recomputes CTD from Pronto the way Finance does (Neo's plan)? Or
+write PMT's actuals into the month columns as plain values? Asked 31/10/2026.
+
+### Q8
+
+CMT export, projects longer than the template's 31 month columns: show a 31 month window, or add columns?
+Asked 31/10/2026.
