@@ -17,18 +17,48 @@ def _clean(v):
     return v or None
 
 
-def _shown(start, end, start_own, end_own):
-    """The start and end the register shows, never an end before the start. When an inherited date contradicts the
-    item's own date (an own start after the inherited end, or an own end before the inherited start), the inherited
-    one is left blank rather than shown; if both are the item's own, the end is left blank (start_own and end_own still
-    carry them). Display only: the months and totals are not touched. Which window should win when an item's own
-    dates fall outside the line window is open question Q14 for Vincent."""
+def _shown(start, end, start_own, end_own, months=None):
+    """The start and end the register shows (Q14, answer A). The item's own dates always win. A date the item does not
+    have of its own is the inherited effective window, widened to take in every month that has money. The shown range
+    never ends before it starts: if it still would, the inherited date that contradicts the item's own date is left
+    blank, and if both are the item's own (entered back to front) the end is left blank (start_own and end_own still
+    carry them). Display only: the months and totals are not touched."""
+    if months:
+        first, last = min(months), max(months)
+        if not start_own and start and first < start[:7]:
+            start = first + "-01"
+        if not end_own and end and last > end[:7]:
+            end = db.month_end(last)
     if start and end and end < start:
         if end_own and not start_own:
             start = None
         else:
             end = None
     return dict(start=start, end=end)
+
+
+def _fmt(iso):
+    return f"{iso[8:10]}/{iso[5:7]}/{iso[:4]}" if iso and len(iso) >= 10 else iso
+
+
+def _mmyyyy(m):
+    return f"{m[5:7]}/{m[:4]}"
+
+
+def outside_window(months, line_start, line_end):
+    """Q14: the flag for an item with money before its line window's start or after its end, or None. The line window
+    is not changed (it never grows automatically); the user moves the item, widens the window or accepts.
+    line_start and line_end are ISO dates; months are ISO 'YYYY-MM'."""
+    before, after = engine.money_outside(months, line_start, line_end)
+    if not before and not after:
+        return None
+    why = []
+    if before:
+        why.append(f"money in {', '.join(_mmyyyy(m) for m in before)}, before the line window starts on {_fmt(line_start)}")
+    if after:
+        why.append(f"money in {', '.join(_mmyyyy(m) for m in after)}, after the line window ends on {_fmt(line_end)}")
+    reason = "Outside the line window: " + "; ".join(why)
+    return dict(before=before, after=after, line_start=line_start, line_end=line_end, reason=reason)
 
 
 def register(con, pid):
@@ -60,14 +90,17 @@ def register(con, pid):
             ser = {}
         months = {m: round(v, 2) for m, v in ser.items() if m >= M and m in grid and abs(v) > 0.005}
         method = it["node_method"] if it["node_kind"] == "line" else it["unalloc_method"]
+        flag = outside_window(months, w[0] + "-01", db.month_end(w[1])) if w and w[0] and w[1] else None
         items.append(dict(id=it["id"], node_id=it["node_id"], code=it["node_code"], line=it["node_name"], pool=it["node_kind"] != "line", who=it["who"], who_kind=it["who_kind"],
-                          role=it["role"], scope=it["scope"], spread=it["spread"], **_shown(s["start_date"], s["end_date"], it["start_date"], it["end_date"]),
+                          role=it["role"], scope=it["scope"], spread=it["spread"], **_shown(s["start_date"], s["end_date"], it["start_date"], it["end_date"], months),
+                          outside_window=flag,
                           start_own=it["start_date"], end_own=it["end_date"], note=it["note"],
                           h1=it["h1"], h2=it["h2"], h3=it["h3"], from_pool=bool(it["from_pool"]), method=method or "AT-BUDGET", live=method == "GROUND-UP",
                           months=months, total=round(sum(months.values()), 2)))
     names = {k: sorted({i[k] for i in items if i[k]}) for k in LEVELS}
     return dict(month=M, grid=[m for m in grid if m >= M], items=items, names=names, total=round(sum(i["total"] for i in items if i["live"]), 2),
-                not_live=sum(1 for i in items if not i["live"]), ungrouped=sum(1 for i in items if not i["h1"]))
+                not_live=sum(1 for i in items if not i["live"]), ungrouped=sum(1 for i in items if not i["h1"]),
+                outside_window=sum(1 for i in items if i["outside_window"]))
 
 
 def group(con, pid, ids, h1=None, h2=None, h3=None, clear_below=True):

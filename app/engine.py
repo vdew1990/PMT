@@ -135,6 +135,13 @@ def _link_lost(raw):
     return link_lost(raw)
 
 
+def money_outside(months, start, end):
+    """Q14: the months with money (ISO 'YYYY-MM') that fall before the line window's start month or after its end month,
+    as (before, after), each sorted. A missing start or end is not checked. The amounts themselves are not touched."""
+    ms = sorted(months)
+    return ([m for m in ms if start and m < start[:7]], [m for m in ms if end and m > end[:7]])
+
+
 def compute(con, pid, status_month=None):
     p = db.one(con, "SELECT * FROM project WHERE id=?", (pid,))
     if not p:
@@ -293,6 +300,7 @@ def _compute(con, p, status_month=None, overrides=None):
         if not fmonths:
             fmonths = [M] if M in gidx else []
         series = defaultdict(float)
+        n_outside = 0               # Q14: forecast items on this line or pool with money outside its window (GROUND-UP only)
         draw = defaultdict(float)   # forecast on this line that is allocated out of a pool above it, by month
         note = ""
         fc_hours = 0.0
@@ -348,11 +356,16 @@ def _compute(con, p, status_month=None, overrides=None):
                 it["start_date"] = it.get("start_date") or (start + "-01")
                 it["end_date"] = it.get("end_date") or (db.month_end(end) if it.get("spread") != "Roster" or not it.get("swings") else None)
                 s = item_series(it, manual.get(nid, {}).get(it["id"]), fctx, notes)
+                money = []
                 for m, v in s.items():
                     if m >= M and m in gidx:
                         series[m] += v
                         if it.get("from_pool") and not is_pot:
                             draw[m] += v
+                        if abs(round(v, 2)) > 0.005:
+                            money.append(m)
+                if any(money_outside(money, start, end)):  # Q14: money before or after the line window; the window never grows
+                    n_outside += 1
                 if it.get("spread") in _fc.DAY_SPREADS:
                     fc_hours += _fc.forecast_hours(it, fctx)
             if notes and not note:
@@ -398,6 +411,7 @@ def _compute(con, p, status_month=None, overrides=None):
             po_no=n.get("po_no"), active=n.get("active", 1), origin=n.get("origin"),
             start_own=n.get("start_date"), end_own=n.get("end_date"),
             schedule_link_lost=None if is_pot else _link_lost(n.get("schedule_link_lost")),
+            items_outside_window=n_outside,
             orig_budget=orig_b, orig_risk=orig_r, budget=budget, risk=risk, allowance=allowance, cont_earmark=L.get("_c", 0.0), risk_cover=L.get("_rc", 0.0),
             variations=var_b + var_r, po_committed=pod["committed"] if pod else 0.0,
             po_received=pod["received"] if pod else 0.0, po_open=pod["open"] if pod else 0,
