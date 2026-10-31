@@ -38,6 +38,7 @@ Priority is blank on purpose: Vincent sets it. Keep this table in step with the 
 | B-28 | S10 Roles and the hub: What each role sees and does, and working together; implements M14. | Platform | Spec | B-29 | docs/specs/00-purpose-and-decisions.md |
 | B-29 | S11 Deployment: Local sync to shared server, with IT. | Platform | Spec | B-28 | docs/specs/00-purpose-and-decisions.md |
 | B-30 | S12 Gates and portfolio | PMO and Reporting | Spec | none | docs/specs/00-purpose-and-decisions.md |
+| T-01 | Trial verification: margin bridge (release .109) | PMO and Reporting | Test (failed) | none | docs/release-log.md release .109; Onyx report 31/10/2026 |
 
 Also waiting on Vincent rather than on a build (see the Next step lines in `docs/threads.md`): trying releases on real Wandoan data,
 a real subcontract template and timesheet, a real Pronto GL export, a PMR and PSR sample, and the Copilot Studio agent decision (thread 13).
