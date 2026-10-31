@@ -41,7 +41,7 @@ Moved from HANDOFF.md unchanged. Every session reads this file. New decisions go
   unassigned pools with "Assign hours to someone".
 - D14. (Vincent 16/10) Allowance does NOT move automatically when forecast is taken out of a pool. The user
   balances allowance by hand (CBS and allowances > transfer) when reviewing cost control.
-- D15. (Vincent 16/10) No restrictions by role. Instead a full audit trail: who did what, when, old and new value.
+- D15. (Vincent 16/10) No restrictions by role. Instead a full audit trail: who did what, when, old and new value. Superseded 31/10/2026 by D14 in docs/specs/00-purpose-and-decisions.md; the audit trail stays.
   Every accrual is clickable for its history: Accruals page rows, cost-control drawer Accruals tab, the ACC
   drill-through, and accrued hours in the labour calendar.
 - D16. (Vincent 16/10) SharePoint cannot be the server: SharePoint Online does not run the app's Python code and no
