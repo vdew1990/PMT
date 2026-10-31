@@ -107,3 +107,8 @@ skipping lines with no forecast and lines where forecast and actuals tie out exa
 Under H, the "roll to next month" decision moves forecast money. Decision #20 allows forecast changes in three places
 only (Cost control row, claim schedule, Ground-Up register). May the month-end review become a fourth place for this
 one action, or should the review open the line's Cost control row so the PM moves it there? Asked 31/10/2026.
+
+Answer (Vincent, 31/10/2026): no fourth place; #20 stays. A "not done, reforecast" decision at EOM takes the PM to the
+line's Cost control row by default, because the PM may want to change the forecast method there. From the row the PM
+goes to the right place for the method: the row itself for AT-COMMIT, BURN-RATE, AT-BUDGET and TOP-DOWN, the claim
+schedule for CLAIM, or the Ground-Up register for GROUND-UP. Needs more design thought (Finn, with Neo).
