@@ -56,7 +56,7 @@ def clone_structure(con, src, dst, include):
     """Copy the reusable skeleton of one project into another. Never copies Pronto data, claims or history.
 
     include keys: lines (CBS lines + intermediate groups), allowances (estimate entries), resources,
-    rate_card, milestones, contract_items.
+    rate_card (with the supplier rates and public holidays), milestones, contract_items.
     """
     s = db.one(con, "SELECT settings_json FROM project WHERE id=?", (src,))
     con.execute("UPDATE project SET settings_json=? WHERE id=?", (s["settings_json"], dst))
@@ -90,6 +90,19 @@ def clone_structure(con, src, dst, include):
         for r in db.rows(con, "SELECT * FROM rate_card WHERE project_id=?", (src,)):
             r.pop("id"); r["project_id"] = dst
             db.insert(con, "rate_card", r)
+        # the subcontractors' rates go with the rate card, on the copied supplier (a rate whose supplier was not copied is left out)
+        for r in db.rows(con, "SELECT * FROM supplier_rate WHERE project_id=? ORDER BY id", (src,)):
+            if r["resource_id"] and not res_map.get(src_res.get(r["resource_id"])):
+                continue
+            r.pop("id"); r["project_id"] = dst
+            r["resource_id"] = res_map.get(src_res.get(r["resource_id"])) if r["resource_id"] else None
+            db.insert(con, "supplier_rate", r)
+        # and so do the public holidays the labour calendar skips
+        have = {h["day"] for h in db.rows(con, "SELECT day FROM holiday WHERE project_id=?", (dst,))}
+        for r in db.rows(con, "SELECT * FROM holiday WHERE project_id=? ORDER BY day", (src,)):
+            if r["day"] not in have:
+                r.pop("id"); r["project_id"] = dst
+                db.insert(con, "holiday", r)
     if include.get("milestones"):
         for r in db.rows(con, "SELECT * FROM milestone WHERE project_id=?", (src,)):
             r.pop("id"); r["project_id"] = dst
