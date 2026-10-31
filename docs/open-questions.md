@@ -45,6 +45,8 @@ Answer (Vincent, 31/10/2026): ask first. The person can check the suggestions on
 B-09, same as question 2 above: at a month-end status date (for example 30/09), should the forecast start the month
 after the status month? Today `app/engine.py:284` counts the status month as a forecast month. Asked 31/10/2026.
 
+Superseded by Q9 (answer H), 31/10/2026.
+
 Answer (Vincent, 31/10/2026): on 30/09 the current month (f) is September and the first forecast month that contributes
 to CTC is October. When the date becomes 1/10, the current month (f) is October and the first forecast month is November.
 So the status month never contributes to CTC; CTC starts the month after the month of the status date, at any status date.
@@ -90,7 +92,18 @@ example: Sep forecast $100k, $60k invoiced on 20/09, $40k of September work invo
 C and H give the same EAC and the same accruals at close. They differ only in what the unlanded amount is called during
 the month (proposed accrual in C, CTC in H). Choose B, C or H. Asked 31/10/2026.
 
+Answer (Vincent, 31/10/2026): H. This supersedes the Q4 answer; D11 stays.
+
 ### Q10
 
 Must the month-end close be blocked until every line with an unlanded status-month remainder (or a proposed accrual)
 has a review decision (S3, E4)? Yes or no. Asked 31/10/2026.
+
+Answer (Vincent, 31/10/2026): yes, every open item needs a decision. The user must be able to cycle through them easily,
+skipping lines with no forecast and lines where forecast and actuals tie out exactly.
+
+### Q11
+
+Under H, the "roll to next month" decision moves forecast money. Decision #20 allows forecast changes in three places
+only (Cost control row, claim schedule, Ground-Up register). May the month-end review become a fourth place for this
+one action, or should the review open the line's Cost control row so the PM moves it there? Asked 31/10/2026.
