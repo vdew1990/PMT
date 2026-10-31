@@ -17,6 +17,20 @@ def _clean(v):
     return v or None
 
 
+def _shown(start, end, start_own, end_own):
+    """The start and end the register shows, never an end before the start. When an inherited date contradicts the
+    item's own date (an own start after the inherited end, or an own end before the inherited start), the inherited
+    one is left blank rather than shown; if both are the item's own, the end is left blank (start_own and end_own still
+    carry them). Display only: the months and totals are not touched. Which window should win when an item's own
+    dates fall outside the line window is open question Q14 for Vincent."""
+    if start and end and end < start:
+        if end_own and not start_own:
+            start = None
+        else:
+            end = None
+    return dict(start=start, end=end)
+
+
 def register(con, pid):
     res = engine.compute(con, pid)
     grid, M = res["grid"], res["status_month"]
@@ -47,7 +61,7 @@ def register(con, pid):
         months = {m: round(v, 2) for m, v in ser.items() if m >= M and m in grid and abs(v) > 0.005}
         method = it["node_method"] if it["node_kind"] == "line" else it["unalloc_method"]
         items.append(dict(id=it["id"], node_id=it["node_id"], code=it["node_code"], line=it["node_name"], pool=it["node_kind"] != "line", who=it["who"], who_kind=it["who_kind"],
-                          role=it["role"], scope=it["scope"], spread=it["spread"], start=s["start_date"], end=s["end_date"],
+                          role=it["role"], scope=it["scope"], spread=it["spread"], **_shown(s["start_date"], s["end_date"], it["start_date"], it["end_date"]),
                           start_own=it["start_date"], end_own=it["end_date"], note=it["note"],
                           h1=it["h1"], h2=it["h2"], h3=it["h3"], from_pool=bool(it["from_pool"]), method=method or "AT-BUDGET", live=method == "GROUND-UP",
                           months=months, total=round(sum(months.values()), 2)))
