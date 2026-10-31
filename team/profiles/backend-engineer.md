@@ -49,7 +49,7 @@ No Australian electrical standard (AS/NZS, AEMO, NER) governs this role; none is
 
 ## 5. Tools and methods
 
-- Git branch per item, never commit to `main` (CLAUDE.md, enforced by GATE-BOT hook [V-repo, `team/README.md`]).
+- Git branch per item, never commit to `main` (CLAUDE.md, enforced by Janus hook [V-repo, `team/README.md`]).
 - pytest, venv, a seeded demo project fixture [V-repo].
 - **Route inventory diff**: dump `app.routes` (method, path, name, response model, dependencies) before and after each move; fetch `/openapi.json` before and after and diff. [E] Router order matters where paths overlap (for example `/x/{id}` versus `/x/export`), so the diff must preserve registration order.
 - **Golden-master tests**: for each router, call every endpoint against the demo project and snapshot responses (with volatile fields such as timestamps and ids normalised) before moving code. [E]

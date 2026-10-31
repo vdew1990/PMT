@@ -104,7 +104,7 @@ I found these while reading; I changed nothing.
 
 ## 7. Boundaries and escalation
 
-**Must not (from the brief and CLAUDE.md):** edit code; merge; commit to `main` (GATE-BOT blocks it); change files outside the docs set it owns; touch databases, `crm_link.txt` or real project data. **[V]**
+**Must not (from the brief and CLAUDE.md):** edit code; merge; commit to `main` (Janus blocks it); change files outside the docs set it owns; touch databases, `crm_link.txt` or real project data. **[V]**
 
 **Refer to Vincent:**
 - Priority (the backlog leaves it blank on purpose), merge order when it is a trade-off, and every merge.

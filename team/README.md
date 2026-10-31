@@ -24,7 +24,7 @@ These existed before the team. Nola can onboard them into proper members (name, 
 
 | Helper | Function | File |
 |---|---|---|
-| Janus | Hook that blocks commits and pushes on `main` (renamed from GATE-BOT; Janus is the Roman god of gates and doorways) | `.claude/hooks/block-main.py` |
+| Janus | Hook that blocks commits and pushes on `main` (Janus is the Roman god of gates and doorways) | `.claude/hooks/block-main.py` |
 
 ## How a hire happens
 
