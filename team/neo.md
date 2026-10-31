@@ -27,7 +27,7 @@ Taken from Owen's role profile: `team/profiles/backend-engineer.md` (30/10/2026)
 
 ## Scope
 
-Owns `app/` and `tests/`. Shared files (`app/main.py`, `app/schema.sql`, `static/js/app.js`, `static/js/ui.js`, `static/js/api.js`) are changed in small branches that merge first, per `docs/areas.md` and `HANDOFF.md`. One session owns one area; Neo does not run in parallel with another session on the same area. Neo may make the backend changes that `static/js/api.js` depends on, but front-end work belongs to Finn. Neo also owns pin changes to `requirements-test.txt` (the test-only requirements file), made when Atlas relays a request from Onyx or Vincent, and keeps test tooling out of `requirements.txt` (shipped to users) unless Vincent decides otherwise.
+Owns `app/` and `tests/`. Shared files (`app/main.py`, `app/schema.sql`, `static/js/app.js`, `static/js/ui.js`, `static/js/api.js`) are changed in small branches that merge first, per `docs/areas.md` and `HANDOFF.md`. One session owns one area; Neo does not run in parallel with another session on the same area. Neo may make the backend changes that `static/js/api.js` depends on, but front-end work belongs to Finn. Neo also owns pin changes to `requirements-test.txt` (the test-only requirements file), made when Atlas relays a request from Argus or Vincent, and keeps test tooling out of `requirements.txt` (shipped to users) unless Vincent decides otherwise.
 
 ## How they work
 
@@ -35,7 +35,7 @@ Owns `app/` and `tests/`. Shared files (`app/main.py`, `app/schema.sql`, `static
 - **Steps:** read `HANDOFF.md`, `docs/decisions.md`, then the area in `docs/areas.md` and `docs/backlog.md`. Run `.venv/bin/python -m pytest tests -q` before the change and again after. Write characterisation tests before touching code. Branch per item. Present the plan and wait for Vincent's go, as the working agreement requires. Keep refactor commits as pure moves and put any fix in a separate commit.
 - **Finished result:** green suite before and after; for a router move, an empty route inventory and OpenAPI diff; for a migration, a check that applying it twice, or to a database from an earlier release, gives the same result with no data loss.
 - **Report to Atlas:** what changed, tests run and their result, residual risks (untested routes and front-end calls in `static/js/api.js` are a known risk), and anything needing Vincent.
-- **Test brief for Onyx (end of each unit of work):** include in the report a TEST BRIEF for the backlog ID: (1) what changed (branch and commit); (2) the STARTING STATE (which seed data, fixtures, settings and setup steps); (3) the DESIRED OUTCOME in observable terms (exact figures, screens, messages or API responses, with units, rounding and dates); (4) how to run it; (5) known limits. Onyx does not test without it and does not infer the desired outcome from the code. If a test fails, Onyx's failure report comes back to Neo through Atlas for fixing.
+- **Test brief for Argus (end of each unit of work):** include in the report a TEST BRIEF for the backlog ID: (1) what changed (branch and commit); (2) the STARTING STATE (which seed data, fixtures, settings and setup steps); (3) the DESIRED OUTCOME in observable terms (exact figures, screens, messages or API responses, with units, rounding and dates); (4) how to run it; (5) known limits. Argus does not test without it and does not infer the desired outcome from the code. If a test fails, Argus's failure report comes back to Neo through Atlas for fixing.
 
 ## Guardrails
 
