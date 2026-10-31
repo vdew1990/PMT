@@ -306,9 +306,11 @@ def accept_suggestions(con, pid, picks=None):
     """Link the accepted suggestions (picks: [{task_id, kind, target_id}]; None = accept all). Only current suggestions are linked,
     so a task linked meanwhile is not overwritten. The dates then follow the schedule as for any link."""
     n_upd = 0
-    for s in _picked(con, pid, picks):
+    picked = _picked(con, pid, picks)
+    for s in picked:
         db.update(con, "programme_task", s["task_id"], {"link_item_id" if s["kind"] == "item" else "link_node_id": s["target_id"]})
         n_upd += 1
+    clear_link_lost(con, pid, [s["target_id"] for s in picked if s["kind"] == "node"])
     warnings = []
     if n_upd:
         warnings = apply(con, pid, targets=("costs",)).get("warnings", [])
@@ -330,6 +332,7 @@ def suggest(con, pid):
     got = suggestions(con, pid)
     for s in got:
         db.update(con, "programme_task", s["task_id"], {"link_item_id" if s["kind"] == "item" else "link_node_id": s["target_id"]})
+    clear_link_lost(con, pid, [s["target_id"] for s in got if s["kind"] == "node"])
     return len({s["task_id"] for s in got})
 
 
@@ -339,6 +342,49 @@ def save_window_links(con, pid, layer):
     return db.rows(con, "SELECT w.node_id, w.role, w.edge, w.suspended, t.wbs, t.name AS task, n.code, n.name, n.start_date, n.end_date "
                         "FROM window_link w JOIN programme_task t ON t.id=w.task_id JOIN cbs_node n ON n.id=w.node_id "
                         "WHERE w.project_id=? AND COALESCE(t.layer,'internal')=? ORDER BY w.node_id, w.role", (pid, layer))
+
+
+def flag_link_lost(con, pid, lost):
+    """Q13: mark every line in `lost` (from a schedule re-upload) as having lost its schedule item. The flag is a column on
+    the line, so it syncs to every copy through the change log, and it stays until the line is linked again or the flag is
+    dismissed. Several lost items on one line (Start and Stop) are kept together, newest last."""
+    if not lost:
+        return
+    from . import changelog
+    today = date.today().isoformat()
+    by_node = {}
+    for x in lost:
+        by_node.setdefault(x["node_id"], []).append(dict(date=today, task=x.get("task"), wbs=x.get("wbs"), role=x.get("role")))
+    for nid, new in sorted(by_node.items()):
+        have = link_lost(db.scalar(con, "SELECT schedule_link_lost FROM cbs_node WHERE id=?", (nid,), None)) or []
+        with changelog.via("Schedule re-upload: schedule item gone"):
+            db.update(con, "cbs_node", nid, {"schedule_link_lost": json.dumps(have + new)})
+    db.bump(con, pid)
+
+
+def link_lost(raw):
+    """The stored flag as a list of {date, task, wbs, role}, or None when the line is not flagged."""
+    if not raw:
+        return None
+    try:
+        v = json.loads(raw)
+    except (TypeError, ValueError):
+        return [dict(date=None, task=str(raw), wbs=None, role=None)]
+    return v if isinstance(v, list) and v else None
+
+
+def clear_link_lost(con, pid, nids, why="Linked to the schedule again"):
+    """Take the lost-link flag off these lines (a new link to the schedule, or the user dismissed it). Returns how many were cleared."""
+    from . import changelog
+    n = 0
+    for nid in {int(x) for x in nids if x}:
+        if db.scalar(con, "SELECT schedule_link_lost FROM cbs_node WHERE id=? AND project_id=?", (nid, pid), None):
+            with changelog.via(why):
+                db.update(con, "cbs_node", nid, {"schedule_link_lost": None})
+            n += 1
+    if n:
+        db.bump(con, pid)
+    return n
 
 
 def restore_window_links(con, pid, layer, saved):
@@ -510,6 +556,7 @@ def set_window(con, pid, nid, start, stop, months=None):
                 db.update(con, "window_link", row["id"], {"task_id": t["id"], "edge": edge, "suspended": 0})
             else:
                 db.insert(con, "window_link", dict(project_id=pid, node_id=nid, role=role, task_id=t["id"], edge=edge, suspended=0))
+            clear_link_lost(con, pid, [nid])
         else:
             cur = st.get(role)
             if cur and not row:                            # a link made the old way: keep it as a suspended anchor so "Return to schedule" works

@@ -130,6 +130,11 @@ def _drawdown(series, draws):
 _cache = {}
 
 
+def _link_lost(raw):
+    from .programme import link_lost
+    return link_lost(raw)
+
+
 def compute(con, pid, status_month=None):
     p = db.one(con, "SELECT * FROM project WHERE id=?", (pid,))
     if not p:
@@ -392,6 +397,7 @@ def _compute(con, p, status_month=None, overrides=None):
             scope=None if is_pot else n.get("scope"), method=method, start=start, end=end,
             po_no=n.get("po_no"), active=n.get("active", 1), origin=n.get("origin"),
             start_own=n.get("start_date"), end_own=n.get("end_date"),
+            schedule_link_lost=None if is_pot else _link_lost(n.get("schedule_link_lost")),
             orig_budget=orig_b, orig_risk=orig_r, budget=budget, risk=risk, allowance=allowance, cont_earmark=L.get("_c", 0.0), risk_cover=L.get("_rc", 0.0),
             variations=var_b + var_r, po_committed=pod["committed"] if pod else 0.0,
             po_received=pod["received"] if pod else 0.0, po_open=pod["open"] if pod else 0,

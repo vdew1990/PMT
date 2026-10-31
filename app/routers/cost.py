@@ -112,6 +112,13 @@ def node_window(pid: int, nid: int, body: dict, con=Depends(get_con)):
     return {"warnings": programme.set_window(con, pid, nid, body.get("start"), body.get("stop"), body.get("months"))}
 
 
+@router.delete("/api/p/{pid}/nodes/{nid}/schedule-link-lost")
+def node_link_lost_dismiss(pid: int, nid: int, con=Depends(get_con)):
+    """Dismiss the "schedule item gone" flag on a line (Q13): the user has dealt with it. Synced like any edit."""
+    services.get_node(con, pid, nid)
+    return {"cleared": programme.clear_link_lost(con, pid, [nid], why="Schedule item gone: flag dismissed")}
+
+
 @router.post("/api/p/{pid}/nodes/{nid}/window-reset")
 def node_window_reset(pid: int, nid: int, body: dict = None, con=Depends(get_con)):
     """Hand the line's Start and/or Stop back to the project schedule (the links typed over are switched on again)."""
@@ -142,6 +149,7 @@ def programme_link_add(pid: int, body: dict, con=Depends(get_con)):
                 db.update(con, "window_link", row["id"], vals)
             else:
                 db.insert(con, "window_link", dict(project_id=pid, node_id=nid, role=r, **vals))
+    programme.clear_link_lost(con, pid, [nid])
     return {"warnings": programme.apply(con, pid, targets=("costs",)).get("warnings", [])}
 
 
@@ -1287,6 +1295,7 @@ async def programme_upload(pid: int, file: UploadFile = File(...), layer: str = 
                              start=n.get("start_date"), end=n.get("end_date")))
             db.log(con, pid, "Schedule item gone", f"{n.get('code')} {n.get('name')}: no longer follows '{o['name']}' (WBS {o['wbs'] or '-'}); "
                                                    f"the window {n.get('start_date') or '-'} to {n.get('end_date') or '-'} is kept as typed dates")
+    programme.flag_link_lost(con, pid, lost)                              # Q13: the line stays flagged, for every user, until dealt with
     s = db.project_settings(con, pid)
     s["programme_file" if layer == "internal" else "programme_file_upstream"] = dict(name=file.filename, source=source, tasks=len(tasks))
     db.update(con, "project", pid, {"settings_json": json.dumps(s)})
@@ -1320,6 +1329,8 @@ def programme_tasks(pid: int, con=Depends(get_con)):
 def programme_task_link(pid: int, tid: int, body: dict, con=Depends(get_con)):
     d = {k: body.get(k) for k in ("link_item_id", "link_node_id", "start_date", "finish_date", "name") if k in body}
     db.update(con, "programme_task", tid, d)
+    if d.get("link_node_id"):
+        programme.clear_link_lost(con, pid, [d["link_node_id"]])
     out = {"ok": True, "warnings": []}
     if "link_node_id" in d or "start_date" in d or "finish_date" in d:      # the linked line's activity window follows the schedule
         out["warnings"] = programme.apply(con, pid, targets=("costs",)).get("warnings", [])
