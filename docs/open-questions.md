@@ -44,3 +44,13 @@ Answer (Vincent, 31/10/2026): ask first. The person can check the suggestions on
 
 B-09, same as question 2 above: at a month-end status date (for example 30/09), should the forecast start the month
 after the status month? Today `app/engine.py:284` counts the status month as a forecast month. Asked 31/10/2026.
+
+Answer (Vincent, 31/10/2026): on 30/09 the current month (f) is September and the first forecast month that contributes
+to CTC is October. When the date becomes 1/10, the current month (f) is October and the first forecast month is November.
+So the status month never contributes to CTC; CTC starts the month after the month of the status date, at any status date.
+
+### Q5
+
+Build the Q4 rule now (engine change at `app/engine.py:284`, as fix F5 after F1 to F4)? Effect: any cost still
+expected in the status month must sit in actuals or accruals, because the status month no longer carries forecast.
+Merlin checks it against D11 first. Asked 31/10/2026.

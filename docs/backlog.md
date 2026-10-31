@@ -16,7 +16,7 @@ Priority is blank on purpose: Vincent sets it. Keep this table in step with the 
 | B-06 | Ground-Up: import the PMT workbook's Ground-Up sheet (about 240 lines) as test data; Excel import template (ISS-003 part 2); check status, planned for .114 | Forecast | Idea (check) | none | designs.md "Plan" item 3 and 4 |
 | B-07 | Ground-Up: day-grid view of the register for rosters; link supplier milestones to project schedule items | Forecast | Idea | B-06 | designs.md "Plan" item 3 |
 | B-08 | Variation engine overview and exports (ISS-005 part 2); check status, planned for .114 | Revenue | Idea (check) | none | designs.md "Plan" item 4 |
-| B-09 | Forecast status month: should forecast start the month after the status month at a month-end status date? | Cost | Needs decision | none | open-questions.md, question 2 |
+| B-09 | Forecast status month: should forecast start the month after the status month at a month-end status date? | Cost | Design agreed | none | open-questions.md, question 2 |
 | B-10 | Claim schedule: fill-right or copy a value to several months; undo for the last grid edit; import historical issued claims with the claim schedule | Revenue | Idea | none | threads.md, thread 29 |
 | B-11 | Subcontract timesheets: show NT/OT on posted Pronto timesheets (needs Pronto work rate codes for overtime); list view of uploaded subby timesheets | Cost | Idea | Pronto codes | threads.md, thread 4 |
 | B-12 | Platform: journal compaction (snapshot and high-water mark); verified Entra sign-in (MSAL) if IT registers an app; test on a real SharePoint library | Platform | Idea | IT | threads.md, thread 1 |
