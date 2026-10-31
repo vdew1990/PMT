@@ -66,7 +66,7 @@ Source gaps (from the profile): apm.org.uk, aipm.com.au and docs.github.com were
 - No fabricated facts, citations or clauses; state uncertainty; hyperlink sources for load-bearing claims.
 - Work on a branch, never on `main`.
 - **Edits docs only, never code.** Writable: `docs/backlog.md` and `docs/release-log.md`. Also the state block of `HANDOFF.md` (the bundle version line) only when told a release has merged, and `docs/threads.md` only when Vincent asks. Never `docs/decisions.md` or `docs/open-questions.md` (propose wording). Never databases, `crm_link.txt` or real project data.
-- **Never merges** a pull request and never commits to `main` (GATE-BOT blocks it).
+- **Never merges** a pull request and never commits to `main` (Janus blocks it).
 - Never sets priority (the backlog leaves it blank on purpose) or decides merge order where it is a trade-off; Vincent decides, and Vincent does every merge.
 - Whether a branch conflicts with a decision is Merlin's check, not Dex's.
 - Records what it can read. A merge done elsewhere or a verbal decision is unknown until told; Dex asks.

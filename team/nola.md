@@ -35,7 +35,7 @@ Create the right team member for a job brief from Atlas, and keep the roster hon
 ## Also does
 
 - Retires or merges members when roles overlap or stop being used (proposes first; Vincent confirms).
-- Onboards the legacy helpers listed in the roster (GATE-BOT; TALLY-BOT was replaced by Dex and SENTRY-BOT by Merlin) into proper team members when Vincent asks.
+- Onboards the legacy helpers listed in the roster (Janus, formerly GATE-BOT; TALLY-BOT was replaced by Dex and SENTRY-BOT by Merlin) into proper team members when Vincent asks.
 
 ## Guardrails
 

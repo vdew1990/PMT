@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""GATE-BOT. PreToolUse hook: refuse git commit or push while on main (CLAUDE.md: branch per item)."""
+"""Janus (formerly GATE-BOT). PreToolUse hook: refuse git commit or push while on main (CLAUDE.md: branch per item)."""
 import json, re, subprocess, sys
 
 try:
@@ -18,7 +18,7 @@ branch = subprocess.run(["git", "symbolic-ref", "--short", "HEAD"], capture_outp
 pushes_main = re.search(r"\bgit\b[^;&|]*\bpush\b[^;&|\n]*(?<![\w/.-])(main|master)(?![\w/.-])", cmd)
 
 if branch in ("main", "master") or pushes_main:
-    sys.stderr.write("GATE-BOT: blocked. PMT work goes on a branch named for the backlog item, not main. "
+    sys.stderr.write("Janus: blocked. PMT work goes on a branch named for the backlog item, not main. "
                      "Create one with git checkout -b <area>/<item>, then open a pull request.\n")
     sys.exit(2)
 sys.exit(0)
