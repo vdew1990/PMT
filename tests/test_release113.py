@@ -105,10 +105,11 @@ def test_groundup_register_spreads_like_cost_control_under_a_group_window(blank)
 
 
 
-def test_groundup_register_never_shows_an_end_before_the_start(blank):
-    """F2 follow-up (display only): an own date that falls outside the inherited line window no longer shows an end
-    before the start; the contradicting inherited date is left blank. Items inside the window are unchanged, and the
-    months and totals still tie to Cost control. (Which window wins is open question Q14; this test does not pick.)"""
+def test_groundup_register_own_dates_win_and_money_outside_the_line_window_is_flagged(blank):
+    """Q14, answer A (display and flag only): an item shows its own dates; a date it does not have of its own is the
+    inherited window widened to take in every month with money; the shown range never ends before it starts. An item
+    with money before the line window's start or after its end is flagged with the months and the reason, and the
+    Cost control row counts those items. The line window does not move, and the months and totals still tie."""
     from app import db, engine, groundup
     con = blank
     pid = db.insert(con, "project", dict(name="G", status_date="2026-09-30", project_start="2026-01-01", project_end="2027-12-31"))
@@ -118,7 +119,8 @@ def test_groundup_register_never_shows_an_end_before_the_start(blank):
         undated=db.insert(con, "forecast_item", dict(project_id=pid, node_id=a, spread="Linear", qty=1, rate=30000)),
         own=db.insert(con, "forecast_item", dict(project_id=pid, node_id=a, spread="Linear", qty=1, rate=20000, start_date="2026-11-05", end_date="2026-12-20")),
         late_lump=db.insert(con, "forecast_item", dict(project_id=pid, node_id=a, spread="Lump", qty=1, rate=18000, start_date="2027-02-10")),
-        early_end=db.insert(con, "forecast_item", dict(project_id=pid, node_id=a, spread="Linear", qty=1, rate=7000, end_date="2026-08-31")))
+        early_end=db.insert(con, "forecast_item", dict(project_id=pid, node_id=a, spread="Linear", qty=1, rate=7000, end_date="2026-08-31")),
+        early_own=db.insert(con, "forecast_item", dict(project_id=pid, node_id=a, spread="Linear", qty=1, rate=9000, start_date="2026-09-10", end_date="2026-11-20")))
     con.commit(); engine._cache.clear()
     res = engine.compute(con, pid)
     row = next(r for r in res["rows"] if r["id"] == a)
@@ -128,13 +130,72 @@ def test_groundup_register_never_shows_an_end_before_the_start(blank):
     shown = {k: (i["start"], i["end"]) for k, i in by.items()}
     assert shown["undated"] == ("2026-10-01", "2026-12-31")                    # the inherited group window, as before
     assert shown["own"] == ("2026-11-05", "2026-12-20")                        # its own dates, as before
-    assert shown["late_lump"] == ("2027-02-10", None)                          # was 10/02/2027 to 31/12/2026
+    assert shown["late_lump"] == ("2027-02-10", "2027-02-28")                  # own start; inherited end widened to its money month
     assert by["late_lump"]["months"] == {"2027-02": 18000} and (by["late_lump"]["start_own"], by["late_lump"]["end_own"]) == ("2027-02-10", None)
-    assert shown["early_end"] == (None, "2026-08-31")                          # was 01/10/2026 to 31/08/2026
+    assert shown["early_end"] == (None, "2026-08-31")                          # own end wins; the contradicting inherited start is blank
+    assert shown["early_own"] == ("2026-09-10", "2026-11-20")
     assert all(not (s and e) or e >= s for s, e in shown.values())
+    # the flag: money after the window (late_lump); money before it is out of the forecast here (September is the status month)
+    assert by["late_lump"]["outside_window"] == dict(before=[], after=["2027-02"], line_start="2026-10-01", line_end="2026-12-31",
+                                                     reason="Outside the line window: money in 02/2027, after the line window ends on 31/12/2026")
+    assert all(by[k]["outside_window"] is None for k in ("undated", "own", "early_end"))
+    assert reg["outside_window"] == sum(1 for i in reg["items"] if i["outside_window"])
+    assert row["items_outside_window"] == reg["outside_window"]
+    assert (row["start"], row["end"]) == ("2026-10", "2026-12")                # the line window never grows
     months = {}
     for i in reg["items"]:
         for m, v in i["months"].items():
             months[m] = round(months.get(m, 0) + v, 2)
     assert months == cost_control and reg["total"] == round(sum(cost_control.values()), 2)
     assert groundup._shown("2026-04-01", "2026-03-31", "2026-04-01", "2026-03-31") == dict(start="2026-04-01", end=None)   # both own, entered back to front
+    # an undated item whose money falls after the inherited window (a milestone paid later) shows a window that takes it in
+    assert groundup._shown("2025-02-01", "2026-11-30", None, None, {"2026-09": 1.0, "2027-01": 2.0}) == dict(start="2025-02-01", end="2027-01-31")
+    # own dates are never widened, even when the money falls outside them
+    assert groundup._shown("2026-10-01", "2026-10-31", "2026-10-01", "2026-10-31", {"2026-12": 1.0}) == dict(start="2026-10-01", end="2026-10-31")
+
+
+def test_groundup_flag_covers_money_before_the_line_window(blank):
+    """Q14: an item whose own dates start before a line window that opens later is flagged 'before', with those months;
+    the line window is not moved and Cost control counts the item on the line."""
+    from app import db, engine, groundup
+    con = blank
+    pid = db.insert(con, "project", dict(name="G", status_date="2026-09-30", project_start="2026-01-01", project_end="2027-12-31"))
+    top = db.insert(con, "cbs_node", dict(project_id=pid, code="PS04", name="G", kind="group", gp="PS", category="PS04"))
+    a = db.insert(con, "cbs_node", dict(project_id=pid, parent_id=top, code="PS04.001", name="L", kind="line", gp="PS", method="GROUND-UP",
+                                        start_date="2027-01-01", end_date="2027-03-31"))
+    b = db.insert(con, "cbs_node", dict(project_id=pid, parent_id=top, code="PS04.002", name="M", kind="line", gp="PS", method="GROUND-UP",
+                                        start_date="2027-01-01", end_date="2027-03-31"))
+    early = db.insert(con, "forecast_item", dict(project_id=pid, node_id=a, spread="Linear", qty=1, rate=12000, start_date="2026-11-01", end_date="2027-04-30"))
+    db.insert(con, "forecast_item", dict(project_id=pid, node_id=b, spread="Linear", qty=1, rate=3000))
+    con.commit(); engine._cache.clear()
+    reg = groundup.register(con, pid)
+    it = next(i for i in reg["items"] if i["id"] == early)
+    assert (it["start"], it["end"]) == ("2026-11-01", "2027-04-30")
+    assert it["outside_window"]["before"] == ["2026-11", "2026-12"] and it["outside_window"]["after"] == ["2027-04"]
+    assert (it["outside_window"]["line_start"], it["outside_window"]["line_end"]) == ("2027-01-01", "2027-03-31")
+    assert it["outside_window"]["reason"] == ("Outside the line window: money in 11/2026, 12/2026, before the line window starts on 01/01/2027; "
+                                              "money in 04/2027, after the line window ends on 31/03/2027")
+    rows = {r["id"]: r for r in engine.compute(con, pid)["rows"]}
+    assert rows[a]["items_outside_window"] == 1 and rows[b]["items_outside_window"] == 0
+    assert (rows[a]["start"], rows[a]["end"]) == ("2027-01", "2027-03")
+    assert db.one(con, "SELECT start_date, end_date FROM cbs_node WHERE id=?", (a,)) == {"start_date": "2027-01-01", "end_date": "2027-03-31"}
+
+
+def test_groundup_q14_on_the_demo_seed(demo):
+    """Q14 on the demo project: PS04.003 Demobilisation (Lump, own start 10/12/2026) shows 10/12/2026 to 31/12/2026 and
+    PM03.002 (Milestones, undated) shows 01/02/2025 to 31/01/2027, both flagged 'after'. Amounts unchanged."""
+    from app import engine, groundup
+    con, pid = demo
+    engine._cache.clear()
+    reg = groundup.register(con, pid)
+    lump = next(i for i in reg["items"] if i["code"] == "PS04.003" and i["spread"] == "Lump")
+    assert (lump["start"], lump["end"]) == ("2026-12-10", "2026-12-31") and lump["months"] == {"2026-12": 18000.0}
+    assert lump["outside_window"]["after"] == ["2026-12"] and lump["outside_window"]["before"] == []
+    pm = next(i for i in reg["items"] if i["code"] == "PM03.002")
+    assert (pm["start"], pm["end"]) == ("2025-02-01", "2027-01-31")
+    assert pm["outside_window"]["after"] and pm["outside_window"]["before"] == []
+    assert all(not (i["start"] and i["end"]) or i["end"] >= i["start"] for i in reg["items"])
+    rows = {r["id"]: r for r in engine.compute(con, pid)["rows"]}
+    live_lines = {i["node_id"] for i in reg["items"] if i["live"] and not i["pool"]}
+    assert abs(sum(i["total"] for i in reg["items"] if i["live"] and not i["pool"]) - sum(rows[n]["ctc"] for n in live_lines)) < 0.05   # per-month cent rounding
+    assert rows[lump["node_id"]]["items_outside_window"] >= 1 and rows[pm["node_id"]]["items_outside_window"] >= 1
