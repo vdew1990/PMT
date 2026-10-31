@@ -48,6 +48,7 @@ def sha(path):
 
 
 def test_unset_and_missing(monkeypatch, tmp_path):
+    monkeypatch.setattr(db, "APP_ROOT", tmp_path)              # ignore a developer's local crm_link.txt in the app root
     monkeypatch.delenv(crm_link.ENV, raising=False)
     assert crm_link.status()["configured"] is False
     monkeypatch.setenv(crm_link.ENV, str(tmp_path / "nope.db"))
