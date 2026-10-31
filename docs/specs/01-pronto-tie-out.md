@@ -1,14 +1,16 @@
-# S1: CMT replacement and Pronto tie-out (formerly CMT gaps and parity)
+# S1: Pronto tie-out and CMT replacement
 
 Commercial in Confidence. Amounts are AUD excluding GST; dates are DD/MM/YYYY.
 
-**Status:** DRAFT. Decisions S1-1 to S1-18 verified by Vincent in interview, 31/10/2026 (AEST). The acceptance tests (section 4), the revised procedure (section 5) and the open items (section 9) remain proposed and unverified.
+**Status:** DRAFT. Decisions S1-1 to S1-22 verified by Vincent in interview, 31/10/2026 (AEST). The acceptance tests (section 4), the revised procedure (section 5) and the open items (section 9) remain proposed and unverified.
+
+S1 is split into three small specs (S1-22): this file (Pronto tie-out and CMT replacement), [`01b-cmt-format-export.md`](01b-cmt-format-export.md) (S1b) and [`01c-cmt-import.md`](01c-cmt-import.md) (S1c).
 
 Decision IDs from the master spec ([`00-purpose-and-decisions.md`](00-purpose-and-decisions.md)) are written as M-numbers (M1 to M15 on `main`). Example: Finance's role (M12). Parity as a first-rollout acceptance test is M11(d).
 
 ## 1. Purpose and scope
 
-PMT replaces Finance's CMT (Cost Management Tool, an Excel workbook). CMT misses functions project managers need and needs heavy manual handling. S1 defines which gaps must close and how parity is proven, so that the CMT stops being something anyone maintains, wave by wave, as PMT's export replaces it (S1-8, S1-15).
+PMT replaces Finance's CMT (Cost Management Tool, an Excel workbook). CMT misses functions project managers need and needs heavy manual handling. S1 defines which gaps must close and how parity is proven, so that the CMT stops being something anyone maintains, wave by wave, as PMT's export replaces it (S1-8; the export is specified in S1b).
 
 Finance wants only the EOM report, driven by actuals, commitments, accruals and forecast. The programme, claim schedules and similar matter to Finance only through their indirect effect on the EOM report (S1-11). The job PMT must take over from CMT is therefore producing a correct EOM report that ties out with Pronto (S1-13, S1-16).
 
@@ -17,7 +19,7 @@ Finance wants only the EOM report, driven by actuals, commitments, accruals and 
 | ID | Decision |
 |---|---|
 | S1-1 | Parity is measured on the EOM report. |
-| S1-2 | PMT's accrual-inclusive EAC is the right number. Differences from a CMT-style EAC (cost to date plus cost to complete, which leaves accruals out) are explained, not removed. |
+| S1-2 | PMT's accrual-inclusive EAC is the right number. Differences from a CMT-style EAC (cost to date plus cost to complete) are explained, not removed. See S1-20 for how Finance's CMT treats accruals. |
 | S1-3 | Four CMT gap areas are real: forecast methods; claims and variations; resources and timesheets; history and review. |
 | S1-4 | The test uses several projects, one closed month each. |
 | S1-5 | PMT is the leading view and Pronto is the official view. The project manager enters claimed revenue, variations and accruals in PMT first. Revenue and variations reach Pronto only when approved, so recognised revenue in PMT differs from official revenue in Pronto until then. Accruals in PMT are the full picture; Pronto lags because Finance posts them after receiving the EOM report. Differences explained by these timing causes are allowed and should clear once approved or posted. Unexplained differences fail. |
@@ -30,10 +32,14 @@ Finance wants only the EOM report, driven by actuals, commitments, accruals and 
 | S1-12 | In theory the CMT equals Pronto, which it imports. The differences come from human error due to manual handling. Example: the CMT cost and forecast worksheet is static, so when Pronto shows new CBS entries that are not in the static CMT list, the user must create placeholders by hand to tie the numbers out. |
 | S1-13 | Ultimately PMT must align perfectly with Pronto and give Finance an EOM report with cost and revenue: allowances, commitments, actuals, accruals, forecast and EAC, revenue and variations. (This resolves the earlier open item: revenue and variations are EOM report drivers.) |
 | S1-14 | Parity test restated: Pronto-only figures must match exactly. PM-input layers are reported separately and explained. The PM inputs are four: subcontractor claim schedules with claimed numbers; client claims (claimed revenue not yet approved or recorded in Pronto); the variation register, including drafted variations that have not gone to the client; and accruals with numbers only the PM knows (the PM's estimated value of works done before any invoice or claim has landed). Both CMT and PMT run solely on Pronto data; the PM inputs are the only difference. Supersedes the wording of S1-9 (metrics known to drift) and S1-6 (causes). |
-| S1-15 | PMT exports its own CMT-format Excel as an interim bridge. PMT outputs the CMT Excel and the EOM report and ties out with Pronto; the CMT becomes a transient artefact that dies out. Finance used to update the CMT but has given that function back to the PM. Vincent does not want to manage the CMT externally by manually updating the Pronto data it relies on just to prove it ties out with PMT. |
+| S1-15 | See S1b ([`01b-cmt-format-export.md`](01b-cmt-format-export.md)): PMT exports its own CMT-format Excel as an interim bridge. Also S1-21. |
 | S1-16 | Therefore the tie-out is PMT against Pronto, not PMT against an externally maintained CMT. |
-| S1-17 | Keep (and maintain) a CMT import so a PM can move from the CMT to PMT mid-project. Vincent: an import function for the CMT is very useful for PMs who want to move mid-project. PMT already has one (`app/cmt_import.py`, section 3); S1 must define what it has to cover for a mid-project move (section 9). |
+| S1-17 | See S1c ([`01c-cmt-import.md`](01c-cmt-import.md)): keep and maintain a CMT import for mid-project moves. |
 | S1-18 | Client claims are a fourth PM input: the PM's claim to the client (claimed revenue before the client approves it and Pronto records it). This amends S1-14 from three PM inputs to four. |
+| S1-19 | The EOM report is already in the right format in PMT; no changes are needed. This replaces Zoe's proposal of a separate Pronto-only switch, which is not a requirement. See the open observation in section 9. |
+| S1-20 | Finance's CMT EAC is cost to date plus cost to complete, with accruals inside cost to date through ledger journals. This is what Finance uses today. The workbook's own fault log describes a different formula that includes accruals in a third term; that log is not what Finance uses. PMT's EAC stays cost to date plus accruals plus cost to complete (S1-2); the difference is explained, not removed. |
+| S1-21 | See S1b: the CMT-format export has live formulas and may use Excel 365 functions. |
+| S1-22 | S1 is split into three small specs: S1 (this file), S1b (CMT-format export, S1-15, S1-20, S1-21) and S1c (CMT import, S1-17). |
 
 ## 3. What PMT already does (evidence)
 
@@ -63,6 +69,39 @@ Evidence from Zoe, read from `main`. She has not seen CMT or Pronto, so nothing 
 - A parity tolerance (now S1-9).
 - CMT's own documentation.
 - Any record that the Excel write-back was checked in Excel (only LibreOffice).
+
+### What Vincent's PMT workbook shows (Zoe, structure only)
+
+Zoe read formulas and structure only. Nothing from the workbook's data is recorded here. Her reading of Finance's CMT workbook is in S1b. Statements marked "inference" are not evidenced.
+
+**Size and layers.** 69 sheets (48 visible, 21 hidden).
+- Pronto-fed raw dumps pasted by the PM: transactions, POs, labour, claims, variations and a CTD overview.
+- Sheets derived by formula: staging, commitments, actuals by CBS, by resource and by month.
+- Sheets shared with the CMT, by inference: Contract Value, Ledger, Allowance, CBS, Cost Control (the equivalent of the CMT engine), EOM Report, Accruals, Variation Engine, claim sheets and Setup.
+- PM-only sheets.
+
+**Where the four PM inputs live.**
+- Subcontractor claim schedules: a setup block and a monthly grid with a Claim row and an Approved row per line. The Approved row overwrites the forecast. Method CLAIM feeds cost to complete.
+- Variation register: three levels (grandparent, revision, meeting), with client status and EPEC status columns. EPEC status includes Drafting and Submitted, so drafts not yet with the client are held. "Recognised" means client Approved and EPEC Agreed; "official" is a manual tick. Value comes from Variation Engine lines. There is a fixed 171-row ceiling.
+- Accruals register: columns CBS, month, Source (PM or Pronto), function, resource, PO, invoice number, amount, note and quote. PM rows are typed before an invoice lands. Pronto journalled accruals are harvested into the same register. Balance = MAX(Pronto open, PM target) to avoid double counting. An automatic reversal posts when the invoice lands.
+- Client revenue schedule, with a certification table.
+
+**EOM report layout.**
+- Revenue block: Claimed, Approved, Invoiced and Paid, each split into base scope, variations and total, with Previous, This Month, To Date, Remaining and Contract Value.
+- Gross margin block.
+- Approved-variations list with an "In Pronto?" check.
+- Tie-out panels: to the claim schedule, to Pronto claims and to Cost Control.
+- Cost block in the order Allowance, Commitments, Actuals, Accruals, Forecast (ordered and outstanding; previous, this month and CTD; previously accrued, accrued this month and accruals to date; CTC; EAC), with a Hide zero lines switch.
+- EAC on Cost Control = CTD + accruals + CTC (same as the app).
+
+**New Pronto CBS code.** Not automatic by design. A backlog note in the workbook says a new code lands in an unallocated line, so dollars tie but the code is invisible; a coverage check was planned and not built. The Match sync block is hard-filled to 35 parents and needs a manual row insert. The CBS spine is a fixed table of 4 grandparents and 32 parents. So the test "a new Pronto CBS code needs no hand-made placeholder" (section 4.5) is a real gap in both the CMT and the PMT workbook. The app's behaviour is still unverified.
+
+**Open observations (inference).**
+- The Cost Control parent "Remaining budget" formula is identical to the CTC formula (likely a copy error).
+- Gross margin on revised revenue uses the official contract value, while the Input Interface says the recognised value drives it. This is a ruling for Finance and the commercial manager.
+- Some inputs are hard-coded: EAC top-down values, a CMT date, and a text date literal in an end-date formula.
+
+**Not determined.** Which named range CC_EAC points to; cached results (formulas only were read); VBA behaviour; which cells are Pronto-only versus mixed, beyond the sheets above.
 
 ## 4. Gap areas and proposed acceptance tests
 
@@ -155,15 +194,16 @@ The four PM inputs (S1-14, S1-18) are the layers. Each is reported separately an
 Resolved, for the record:
 - Who supplies CMT figures and in what form: resolved by S1-16 (the tie-out is PMT against Pronto, not an externally maintained CMT).
 - Whether revenue and variations are EOM report drivers: resolved by S1-13 (they are).
+- Whether the EOM report needs changes: resolved by S1-19 (no).
+- The CMT-format export layout and the CMT import scope: moved to S1b and S1c.
 
 Open:
-1. Excel files: Vincent supplied two Excel workbooks in the session. One is his CMT, which has real but outdated data and is the model for how the exported Excel should look and how its formulas should work. The other is his PMT workbook, the most up to date, on which the CMT was developed and with which it shares many sheets. Zoe is analysing the structure and formulas of both workbooks (structure only); her findings will define the layout of the CMT-format export, the section 4 and 5 tests and the import scope.
-2. The clearing window per cause, now for the PM-input layers, and who sets it.
+1. Workbook analysis: Zoe has analysed the structure and formulas of both workbooks Vincent supplied (structure only, section 3 and S1b). It informs the section 4 and 5 tests, the export (S1b) and the import (S1c).
+2. The clearing window for the PM-input layers, and who sets it.
 3. How many projects, and which.
 4. Whether the reconciliation lives in PMT as an output or in a document. Zoe recommends a PMT output, which would also cover the gaps in section 6.
 5. Whether pending variations count as forecast or revenue (a ruling for the commercial manager and project director).
 6. Rollout wave dates and owners.
 7. Verification by Vincent of the section 4 tests and the section 5 procedure.
-8. How the CMT-format export should be laid out (to be settled from Zoe's workbook analysis, item 1).
-9. Whether the Excel write-back to CMT still matters.
-10. What the CMT import must cover for a mid-project move (S1-17), given its current limits in section 3 (no actuals, accruals, commitments or multi-row lines); to be settled from item 1.
+8. Open observation (S1-19): Zoe found that the workbook's accruals register mixes Pronto and PM rows with a Source flag, and that its forecast mixes methods. Whether Pronto-sourced columns can always be tied separately is to be checked by testing, not assumed.
+9. The open observations in section 3 (Remaining budget formula, gross margin basis, hard-coded inputs): rulings for Finance and the commercial manager.

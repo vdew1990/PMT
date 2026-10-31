@@ -26,7 +26,9 @@ Priority is blank on purpose: Vincent sets it. Keep this table in step with the 
 | B-16 | Tables stretching to the window height (possible follow-up) | Platform | Idea | none | threads.md, thread 26 |
 | B-17 | People: company org chart page, allocation across projects, support roles and contacts per project, vacancies, 21/10/2026 interim reporting lines, HR review of titles not on the allowed list | Setup and Team | Idea | HR | release-log .119 "Open" |
 | B-18 | Ground-Up Excel and role leads: leads for Commissioning (Engineering) and Engineering; hours per line or dollars only; sample R01/R02 and BoP SCADA CBS | Setup and Team | Needs decision | B-01 | designs.md, "Open" under the teams design |
-| B-19 | S1 CMT gaps and parity: What CMT does today, what PMs need that it lacks, the parity test for retiring it. | Cost | Spec | none | docs/specs/00-purpose-and-decisions.md |
+| B-19 | S1: Pronto tie-out and CMT replacement (spec) | Cost | Spec | none | docs/specs/00-purpose-and-decisions.md |
+| B-31 | S1b: CMT-format export (interim bridge) (spec) | Cost | Spec | B-19 | docs/specs/01b-cmt-format-export.md |
+| B-32 | S1c: CMT import for mid-project moves (spec) | Cost | Spec | B-19 | docs/specs/01c-cmt-import.md |
 | B-20 | S2 Remove manual data handling: The list of manual steps today and how PMT removes each. | Cost | Spec | none | docs/specs/00-purpose-and-decisions.md |
 | B-21 | S3 Month-end close flow: Pronto load and check, reforecast, accruals, in a measurable time. | Cost | Spec | none | docs/specs/00-purpose-and-decisions.md |
 | B-22 | S4 Claims and variations | Revenue | Spec | none | docs/specs/00-purpose-and-decisions.md |

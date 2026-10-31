@@ -83,7 +83,9 @@ Not decided. Recorded, not resolved.
 | ID | Spec | Scope | Status |
 |---|---|---|---|
 | S0 | Purpose and decisions | This file. | Written |
-| S1 | CMT gaps and parity | What CMT does today, what PMs need that it lacks, the parity test for retiring it. | Not yet written |
+| S1 | [Pronto tie-out and CMT replacement](01-pronto-tie-out.md) | What CMT does today, what PMs need that it lacks, the parity test for retiring it. | Draft |
+| S1b | [CMT-format export (interim bridge)](01b-cmt-format-export.md) | PMT exports its own CMT-format Excel. | Draft |
+| S1c | [CMT import for mid-project moves](01c-cmt-import.md) | Keep and maintain the CMT import. | Draft |
 | S2 | Remove manual data handling | The list of manual steps today and how PMT removes each. | Not yet written |
 | S3 | Month-end close flow | Pronto load and check, reforecast, accruals, in a measurable time. | Not yet written |
 | S4 | Claims and variations | | Not yet written |
