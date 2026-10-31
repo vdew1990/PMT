@@ -156,3 +156,8 @@ Answer (Vincent, 31/10/2026): keep it flagged for everyone (synced, on the line,
 F2 follow-up. When a Ground-Up item's own dates fall outside its line's window, which wins: (A) the item's own dates,
 with the item flagged "outside line window", or (B) the line window (today), with the item flagged? Either way the
 register stops showing an end date before a start date. Zoe advises before Vincent answers. Asked 31/10/2026.
+
+Answer (Vincent, 31/10/2026): A. The item's own dates win (an undated item shows the inherited window widened to its
+money months), and items with money before or after the line window are flagged with the reason and months, offering:
+move the item, widen the line window (warn that undated items re-spread; a schedule-linked window is fixed in the
+schedule), or accept. Cost control shows a line-level marker. The line window never grows automatically.
