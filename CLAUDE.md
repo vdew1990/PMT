@@ -9,7 +9,7 @@ Branch per item; never commit to `main` directly. Follow the working agreement i
 
 ## Helper agents (`.claude/agents/`, hook in `.claude/hooks/`)
 
-- **Janus** (formerly GATE-BOT, `.claude/hooks/block-main.py`): hook that blocks git commit and push on `main`.
+- **Janus** (`.claude/hooks/block-main.py`): hook that blocks git commit and push on `main`.
 
 ## The AI team (`team/`)
 

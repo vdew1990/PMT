@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Janus (formerly GATE-BOT). PreToolUse hook: refuse git commit or push while on main (CLAUDE.md: branch per item)."""
+"""Janus. PreToolUse hook: refuse git commit or push while on main (CLAUDE.md: branch per item)."""
 import json, re, subprocess, sys
 
 try:
