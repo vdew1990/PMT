@@ -59,3 +59,55 @@ def test_a_link_whose_task_is_gone_is_dropped_and_the_line_keeps_its_dates(blank
     assert blank.execute("SELECT window_months FROM cbs_node WHERE id=?", (a,)).fetchone()[0] is None
     assert _links(blank, b)["stop"] == ("Concrete pour", "finish", 1)
     assert db.scalar(blank, "SELECT COUNT(*) FROM audit_log WHERE project_id=? AND action='Schedule item gone' AND detail LIKE 'PS04.001%'", (pid,)) == 1
+
+
+def _named_job(con):
+    """Two CBS lines whose names match two schedule tasks, and a third task that matches nothing."""
+    from app.routers import _shared
+    _shared.UPLOADS.mkdir(parents=True, exist_ok=True)
+    pid = db.insert(con, "project", dict(name="Suggest", status_date="2026-09-30", project_start="2026-01-01", project_end="2027-06-30"))
+    top = db.insert(con, "cbs_node", dict(project_id=pid, code="PS04", name="Group", kind="group", gp="PS", category="PS04"))
+    a = db.insert(con, "cbs_node", dict(project_id=pid, parent_id=top, code="PS04.001", name="Earthworks", kind="line", gp="PS", method="AT-BUDGET"))
+    b = db.insert(con, "cbs_node", dict(project_id=pid, parent_id=top, code="PS04.002", name="Fencing", kind="line", gp="PS", method="AT-BUDGET"))
+    con.commit()
+    return TestClient(__import__("app.main", fromlist=["app"]).app), pid, a, b
+
+
+CSV_NAMED = "WBS,Name,Start,Finish\n1.1,Earthworks,01/11/2026,31/01/2027\n1.2,Fencing,01/12/2026,28/02/2027\n1.3,Site start,10/11/2026,10/11/2026\n"
+
+
+def _task_links(con, pid):
+    return {r["name"]: r["link_node_id"] for r in db.rows(con, "SELECT name, link_node_id FROM programme_task WHERE project_id=?", (pid,))}
+
+
+def test_an_upload_creates_no_link_without_confirmation(blank):
+    c, pid, a, b = _named_job(blank)
+    r = c.post(f"/api/p/{pid}/programme/upload", files={"file": ("s.csv", CSV_NAMED, "text/csv")}).json()
+    assert r["auto_linked"] == 0
+    assert {(s["task"], s["kind"], s["target_id"]) for s in r["suggestions"]} == {("Earthworks", "node", a), ("Fencing", "node", b)}
+    assert _task_links(blank, pid) == {"Earthworks": None, "Fencing": None, "Site start": None}
+    assert _window(blank, a) == (None, None)                              # no dates taken over either
+    assert c.get(f"/api/p/{pid}/programme/suggestions").json() == r["suggestions"]
+
+
+def test_suggestions_can_be_accepted_or_rejected_one_by_one(blank):
+    c, pid, a, b = _named_job(blank)
+    sug = {s["task"]: s for s in c.post(f"/api/p/{pid}/programme/upload", files={"file": ("s.csv", CSV_NAMED, "text/csv")}).json()["suggestions"]}
+    pick = lambda s: {k: s[k] for k in ("task_id", "kind", "target_id")}
+    r = c.post(f"/api/p/{pid}/programme/suggestions/accept", json={"items": [pick(sug["Earthworks"])]}).json()
+    assert r["linked"] == 1 and [s["task"] for s in r["suggestions"]] == ["Fencing"]
+    assert _task_links(blank, pid)["Earthworks"] == a and _task_links(blank, pid)["Fencing"] is None
+    assert _window(blank, a) == ("2026-11-01", "2027-01-31")             # the accepted link drives the line's window
+    r = c.post(f"/api/p/{pid}/programme/suggestions/reject", json={"items": [pick(sug["Fencing"])]}).json()
+    assert r["rejected"] == 1 and r["suggestions"] == []
+    assert _task_links(blank, pid)["Fencing"] is None
+    # a rejected suggestion is not offered again after a re-upload of the same schedule
+    assert c.post(f"/api/p/{pid}/programme/upload", files={"file": ("s.csv", CSV_NAMED, "text/csv")}).json()["suggestions"] == []
+
+
+def test_accept_all_links_every_suggestion(blank):
+    c, pid, a, b = _named_job(blank)
+    c.post(f"/api/p/{pid}/programme/upload", files={"file": ("s.csv", CSV_NAMED, "text/csv")})
+    r = c.post(f"/api/p/{pid}/programme/suggestions/accept", json={"all": True}).json()
+    assert r["linked"] == 2 and r["suggestions"] == []
+    assert _task_links(blank, pid) == {"Earthworks": a, "Fencing": b, "Site start": None}

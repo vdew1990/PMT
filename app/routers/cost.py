@@ -1290,10 +1290,10 @@ async def programme_upload(pid: int, file: UploadFile = File(...), layer: str = 
     s = db.project_settings(con, pid)
     s["programme_file" if layer == "internal" else "programme_file_upstream"] = dict(name=file.filename, source=source, tasks=len(tasks))
     db.update(con, "project", pid, {"settings_json": json.dumps(s)})
-    linked = programme.suggest(con, pid) if layer == "internal" else 0
+    suggested = programme.suggestions(con, pid) if layer == "internal" else []    # offered for the user to accept, not linked here
     windows = programme.apply(con, pid, targets=("costs",)) if layer == "internal" else {}     # the activity windows follow the schedule
     programme.apply(con, pid, targets=("claims",))                                              # and so do claim lines linked to tasks
-    return {"tasks": len(tasks), "source": source, "auto_linked": linked, "relinked": relinked,
+    return {"tasks": len(tasks), "source": source, "auto_linked": 0, "suggestions": suggested, "relinked": relinked,
             "windows": windows.get("nodes", 0), "windows_kept": windows.get("kept", 0), "warnings": windows.get("warnings", []),
             "links_lost": lost}
 
@@ -1331,6 +1331,27 @@ def programme_task_link(pid: int, tid: int, body: dict, con=Depends(get_con)):
 @router.post("/api/p/{pid}/programme/auto-link")
 def programme_autolink(pid: int, con=Depends(get_con)):
     return {"linked": programme.suggest(con, pid)}
+
+
+@router.get("/api/p/{pid}/programme/suggestions")
+def programme_suggestions(pid: int, con=Depends(get_con)):
+    """Links suggested by name match, waiting for the user to accept or reject them."""
+    need_project(con, pid)
+    return programme.suggestions(con, pid)
+
+
+@router.post("/api/p/{pid}/programme/suggestions/accept")
+def programme_suggestions_accept(pid: int, body: dict, con=Depends(get_con)):
+    """Accept suggestions one by one (items: [{task_id, kind, target_id}]) or all of them (all: true)."""
+    need_project(con, pid)
+    return programme.accept_suggestions(con, pid, None if body.get("all") else (body.get("items") or []))
+
+
+@router.post("/api/p/{pid}/programme/suggestions/reject")
+def programme_suggestions_reject(pid: int, body: dict, con=Depends(get_con)):
+    """Reject suggestions one by one (items: [...]) or all of them (all: true); they are not offered again."""
+    need_project(con, pid)
+    return programme.reject_suggestions(con, pid, None if body.get("all") else (body.get("items") or []))
 
 
 @router.post("/api/p/{pid}/programme/apply")

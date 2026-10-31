@@ -8,6 +8,7 @@ The tasks are only a starting point. Each can be linked to a claim schedule item
 copies the dates across, and every date can still be edited by hand afterwards.
 """
 import csv
+import json
 import re
 import subprocess
 import os
@@ -258,28 +259,78 @@ def _score(a, b):
     return len(a & b) / min(len(a), len(b)) * (len(a & b) / len(a | b)) ** 0.25
 
 
-def suggest(con, pid):
+def _candidates(con, pid):
+    """Name matches between the internal schedule's tasks and the claim items / CBS lines, for the fields a task has not linked yet."""
     items = [i for i in db.rows(con, "SELECT id, ref, description FROM contract_item WHERE project_id=? AND kind!='variation'", (pid,))
              if not db.scalar(con, "SELECT COUNT(*) FROM contract_item WHERE parent_id=?", (i["id"],))]
     nodes = db.rows(con, "SELECT id, code, name, COALESCE(function,'') f, COALESCE(scope,'') s, kind FROM cbs_node WHERE project_id=? AND active=1", (pid,))
     it_tok = [(i, _tok(i["description"])) for i in items]
     nd_tok = [(n, _tok(f"{n['name']} {n['f']} {n['s']}")) for n in nodes]
-    n_upd = 0
-    for t in db.rows(con, "SELECT * FROM programme_task WHERE project_id=? AND COALESCE(layer,'internal')='internal'", (pid,)):
+    out = []
+    for t in db.rows(con, "SELECT * FROM programme_task WHERE project_id=? AND COALESCE(layer,'internal')='internal' ORDER BY seq", (pid,)):
         tk = _tok(t["name"])
-        upd = {}
+        base = dict(task_id=t["id"], wbs=t["wbs"], task=t["name"], start=t["start_date"], finish=t["finish_date"])
         if not t["link_item_id"] and it_tok:
             sc, best = max(((_score(tk, tt), i) for i, tt in it_tok), key=lambda x: x[0])
             if sc >= 0.6:
-                upd["link_item_id"] = best["id"]
+                out.append(dict(base, kind="item", target_id=best["id"], target_code=best["ref"], target_name=best["description"], score=round(sc, 2)))
         if not t["link_node_id"] and nd_tok:
             sc, best = max(((_score(tk, tt), n) for n, tt in nd_tok), key=lambda x: x[0])
             if sc >= 0.6:
-                upd["link_node_id"] = best["id"]
-        if upd:
-            db.update(con, "programme_task", t["id"], upd)
-            n_upd += 1
-    return n_upd
+                out.append(dict(base, kind="node", target_id=best["id"], target_code=best["code"], target_name=best["name"], score=round(sc, 2)))
+    return out
+
+
+REJECTED = "programme_suggest_rejected"     # project settings: suggestions the user turned down, by task WBS and name, so a re-upload does not offer them again
+
+
+def _key(s):
+    return f"{s['wbs'] or ''}|{s['task']}|{s['kind']}|{s['target_id']}"
+
+
+def suggestions(con, pid):
+    """Links the schedule suggests by name match. Nothing is linked until the user accepts them (one by one or all)."""
+    rejected = set(db.project_settings(con, pid).get(REJECTED) or [])
+    return [s for s in _candidates(con, pid) if _key(s) not in rejected]
+
+
+def _picked(con, pid, picks):
+    cur = suggestions(con, pid)
+    if picks is None:
+        return cur
+    want = {(int(p["task_id"]), p["kind"], int(p["target_id"])) for p in picks if p.get("task_id") and p.get("kind") in ("item", "node") and p.get("target_id")}
+    return [s for s in cur if (s["task_id"], s["kind"], s["target_id"]) in want]
+
+
+def accept_suggestions(con, pid, picks=None):
+    """Link the accepted suggestions (picks: [{task_id, kind, target_id}]; None = accept all). Only current suggestions are linked,
+    so a task linked meanwhile is not overwritten. The dates then follow the schedule as for any link."""
+    n_upd = 0
+    for s in _picked(con, pid, picks):
+        db.update(con, "programme_task", s["task_id"], {"link_item_id" if s["kind"] == "item" else "link_node_id": s["target_id"]})
+        n_upd += 1
+    warnings = []
+    if n_upd:
+        warnings = apply(con, pid, targets=("costs",)).get("warnings", [])
+        apply(con, pid, targets=("claims",))
+    return {"linked": n_upd, "warnings": warnings, "suggestions": suggestions(con, pid)}
+
+
+def reject_suggestions(con, pid, picks=None):
+    """Turn suggestions down (None = all): they are not offered again, also after a re-upload of the same tasks."""
+    got = _picked(con, pid, picks)
+    st = db.project_settings(con, pid)
+    st[REJECTED] = sorted(set(st.get(REJECTED) or []) | {_key(s) for s in got})
+    db.update(con, "project", pid, {"settings_json": json.dumps(st)})
+    return {"rejected": len(got), "suggestions": suggestions(con, pid)}
+
+
+def suggest(con, pid):
+    """The "Link by name" button: link every current suggestion at once. Returns the number of tasks linked."""
+    got = suggestions(con, pid)
+    for s in got:
+        db.update(con, "programme_task", s["task_id"], {"link_item_id" if s["kind"] == "item" else "link_node_id": s["target_id"]})
+    return len({s["task_id"] for s in got})
 
 
 def save_window_links(con, pid, layer):
