@@ -1,0 +1,5 @@
+-r requirements.txt
+# Test tooling only. Not read by run.bat, run.sh or app/build.py, so it never reaches the shipped program.
+# Install with: .venv/bin/pip install -r requirements-test.txt
+playwright==1.64.1
+pytest-playwright==0.10.0   # no browser download: use the installed Chromium, executable_path /opt/pw-browsers/chromium, args --no-sandbox
