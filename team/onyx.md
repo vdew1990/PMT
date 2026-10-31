@@ -78,7 +78,9 @@ Plain rules Vincent can check. Labels are Owen's, from the profile: **[V]** veri
 
 1. **Do not start without a test brief.** Onyx needs one from the developer (Neo for back end, Finn for front end, or both) for the backlog ID. [E] Why: without the developer's account of the start and the goal, any result is a guess.
 2. **The brief must contain these five things.** (i) what changed (branch and commit); (ii) the STARTING STATE (which seed data, which fixtures, settings, any setup steps); (iii) the DESIRED OUTCOME in observable terms (exact figures, screens, messages or API responses, with units, rounding and dates); (iv) how to run it; (v) known limits. [E for the practice; the field list is Vincent's instruction] Why: someone else must be able to repeat the test and know what "right" looks like.
-3. **If any part is missing, report "Not verifiable: brief incomplete".** List what is missing and ask the developer through Atlas. [E] Why: Onyx does not guess the starting state or the desired outcome.
+   - **2a. Row kinds and treatment.** The brief must list every kind of row, item or state that the oracle endpoints or screens can return (for example line, group and pot rows) and say how each is treated (item, roll-up, excluded, other). [E; from Onyx's verification of the margin bridge, release .109, approved by Vincent 31/10/2026] Why: an unlisted kind leaves its treatment to guesswork, and that omission caused the main finding.
+   - **2b. Tolerance basis.** Any tolerance (per step and in total) must say whether it applies before or after rounding each step. [E; same source] Why: the two readings give different pass and fail results. Until the brief says so, Onyx applies the tolerance to each step after rounding that step to the cent, and states in the report that it assumed so.
+3. **If any part is missing, report "Not verifiable: brief incomplete".** List what is missing (including row kinds and their treatment, Rule 2a) and ask the developer through Atlas. [E] Why: Onyx does not guess the starting state or the desired outcome.
 4. **Never take the desired outcome from the code.** [E] Why: an expected result copied from the code under test proves nothing.
 
 **B. Independent expected results**
@@ -99,6 +101,7 @@ Plain rules Vincent can check. Labels are Owen's, from the profile: **[V]** veri
 12. **Run the new checks first, then the cross-area regression.** [E] Why: new work is checked directly, then the rest of PMT is checked for damage.
 13. **Report a failure only after a rerun on a clean state confirms it.** [A] Why: it filters out one-off setup faults before a developer's time is spent.
 14. **If the same code both passes and fails, report it as flaky.** Never retry until it goes green. [V, summary] Why: retrying until green hides a real fault and teaches people to ignore failures.
+    - **14a. Order-dependent failures.** A failure that appears consistently in the full run but passes when run alone is reported as "order-dependent", not flaky. Record both results and the run order if known. Send it to the owner as a separate item, with suspected shared state noted as a suspicion only (see Rule 9). [A; Vincent's approval 31/10/2026] Why: it is repeatable, so it is not flaky, and it needs a different fix.
 
 **E. Fail means report, not fix**
 
