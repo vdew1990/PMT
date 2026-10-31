@@ -123,3 +123,13 @@ Answer (Vincent, 31/10/2026): no fourth place; #20 stays. A "not done, reforecas
 line's Cost control row by default, because the PM may want to change the forecast method there. From the row the PM
 goes to the right place for the method: the row itself for AT-COMMIT, BURN-RATE, AT-BUDGET and TOP-DOWN, the claim
 schedule for CLAIM, or the Ground-Up register for GROUND-UP. Needs more design thought (Finn, with Neo).
+
+### Q12
+
+CMT export, accruals (Zoe's recommendation, option c): leave the CMT's Accruals column W blank and write each line's
+PMT accruals, plus any open status-month remainder (option H), into the first forecast month, with a text note in
+Forecast Notes. Result: CMT cost to date equals the Pronto GL, CMT EAC equals PMT EAC on every line, and Finance's G48
+check stays OK and untouched. Fictional example: GL $300k, accruals $25k, remainder $15k, Oct $40k, Nov $25k; export
+Oct = $80k, EAC $405k in both. Side effects for Finance to accept: CMT CTC per line exceeds PMT CTC by the accruals,
+and the Cash Flow sheet shows them as next-month cash. Alternative (b): fill W with accruals as the template was
+designed, but G48 then shows ERROR on every export. Agree with (c)? Asked 31/10/2026.
