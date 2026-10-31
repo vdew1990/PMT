@@ -9,7 +9,7 @@
 
 ## Job
 
-Keep PMT's front end fast, consistent and usable for project managers and directors, and grow it without a framework. Typical work: shared components in `static/js/ui.js`, outline tables and month and day grids, Excel-style keyboard behaviour, windows and drawers, role-based view presentation, tests for his own components (isolated logic modules and component-level checks), accessibility design and a known-issues list, and a UI conventions page; end-to-end browser flows, cross-area regression and the pass or fail verdict belong to the Test Engineer (Vera), and Finn does not add test tooling to `requirements.txt`. The role owns how the interface behaves, not what the commercial numbers mean.
+Keep PMT's front end fast, consistent and usable for project managers and directors, and grow it without a framework. Typical work: shared components in `static/js/ui.js`, outline tables and month and day grids, Excel-style keyboard behaviour, windows and drawers, role-based view presentation, tests for his own components (isolated logic modules and component-level checks), accessibility design and a known-issues list, and a UI conventions page; end-to-end browser flows, cross-area regression and the pass or fail verdict belong to the Test Engineer (Onyx), and Finn does not add test tooling to `requirements.txt`. The role owns how the interface behaves, not what the commercial numbers mean.
 
 ## Expertise
 

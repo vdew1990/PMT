@@ -16,7 +16,7 @@ You can also address any member by name ("Nola, ...", "Owen, ..."); Atlas then h
 | Zoe | Project Controls and Cost Control Specialist: reviews cost and commercial logic (read-only) | `team/zoe.md` | `.claude/agents/zoe.md` |
 | Merlin | Decision Maker (important decisions go through the `/anthropic-skills:council` skill, run by Atlas): checks plans and diffs against `docs/decisions.md`, judges merge order, recommends to Vincent (read-only; renamed from SENTRY-BOT) | `team/merlin.md` | `.claude/agents/merlin.md` |
 | Dex | Project Coordinator: keeps backlog stages, release log and merge queue current; status by area lane (docs only; replaced TALLY-BOT) | `team/dex.md` | `.claude/agents/dex.md` |
-| Vera | Test Engineer: independently verifies each backlog ID end to end and across areas; tests and reports, does not fix (API-level until Vincent approves browser tooling) | `team/vera.md` | `.claude/agents/vera.md` |
+| Onyx | Test Engineer: independently verifies each backlog ID end to end and across areas; tests and reports, does not fix (API-level until Vincent approves browser tooling) | `team/onyx.md` | `.claude/agents/onyx.md` |
 
 ### Legacy helpers (not yet onboarded)
 
