@@ -139,3 +139,17 @@ check must accept correct accruals, for example by comparing GL CTD plus W with 
 detail, to confirm in the build plan: the open status-month remainder (option H) is not an accrual, so on a mid-month
 export it goes into the first forecast month, labelled provisional; at close it is zero (Q10). The check correction is
 made in PMT's stripped template and reported to Finance as a fix to their template.
+
+### Q13
+
+Q2 follow-up (F1). Today a line whose schedule item disappeared is shown once, in the upload dialog, to the person who
+uploaded, plus a local audit entry that does not sync. A typed duration on that line is also cleared, because the dates
+are now static. Is that enough as "the flag", or must the line stay visibly flagged for every user until someone deals
+with it? A lasting flag needs one new column on the CBS line (schema, Vincent's decision); it would be a follow-up and
+does not block the current branch. Asked 31/10/2026.
+
+### Q14
+
+F2 follow-up. When a Ground-Up item's own dates fall outside its line's window, which wins: (A) the item's own dates,
+with the item flagged "outside line window", or (B) the line window (today), with the item flagged? Either way the
+register stops showing an end date before a start date. Zoe advises before Vincent answers. Asked 31/10/2026.
