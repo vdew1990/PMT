@@ -25,6 +25,13 @@ end = latest finish), adds a stable task key so links survive a re-import, and a
 `window_link`), which is Vincent's decision. Merlin checks it against #20 and M10 before the build.
 Alternative (Option 2): link at forecast item level instead. Asked 31/10/2026.
 
+Answer (Vincent, 31/10/2026): Option 1, built like the Allowances linking workspace: two tables side by side (CBS tree
+with grandparent, parent and line on the left; the project schedule with its summary tasks and tasks on the right),
+each with collapsible headers, a movable border between them, and linking by dragging an item from one side onto the
+other (several at once when ticked). Proposed default, to confirm in the design: a drop links the whole window; start
+only or end only is chosen on the line afterwards. Next: Finn designs from the Allowances workspace, Neo the backend
+(several tasks per end, stable task key), Merlin checks before the build.
+
 ### Q2
 
 When a schedule re-upload no longer contains a task that a CBS line is linked to: should the line keep its last
