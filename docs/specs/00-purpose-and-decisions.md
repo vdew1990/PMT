@@ -83,12 +83,12 @@ Not decided. Recorded, not resolved.
 | ID | Spec | Scope | Status |
 |---|---|---|---|
 | S0 | Purpose and decisions | This file. | Written |
-| S1 | CMT gaps and parity | What CMT does today, what PMs need that it lacks, the parity test for retiring it. | Not yet written |
-| S2 | Remove manual data handling | The list of manual steps today and how PMT removes each. | Not yet written |
-| S3 | Month-end close flow | Pronto load and check, reforecast, accruals, in a measurable time. | Not yet written |
-| S4 | Claims and variations | | Not yet written |
-| S5 | Risk and allowances | | Not yet written |
-| S6 | Reports | EOM, then PMR, PSR. | Not yet written |
+| S1 | CMT gaps and parity | What CMT does today, what PMs need that it lacks, the parity test for retiring it. | Draft (`01-cmt-gaps-and-parity.md`), awaiting Vincent |
+| S2 | Remove manual data handling | The list of manual steps today and how PMT removes each. | Draft (`02-remove-manual-data-handling.md`), awaiting Vincent |
+| S3 | Month-end close flow | Pronto load and check, reforecast, accruals, in a measurable time. | Draft (`03-month-end-close-flow.md`), awaiting Vincent |
+| S4 | Claims and variations | | Draft (`04-claims-and-variations.md`), awaiting Vincent |
+| S5 | Risk and allowances | | Draft (`05-risk-and-allowances.md`), awaiting Vincent |
+| S6 | Reports | EOM, then PMR, PSR. | Draft (`06-reports.md`), awaiting Vincent |
 | S7 | Project setup | Template, CRM start, contract and CBS load. | Not yet written |
 | S8 | Team and resourcing | | Not yet written |
 | S9 | Schedule ownership | | Not yet written |
