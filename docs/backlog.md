@@ -26,6 +26,18 @@ Priority is blank on purpose: Vincent sets it. Keep this table in step with the 
 | B-16 | Tables stretching to the window height (possible follow-up) | Platform | Idea | none | threads.md, thread 26 |
 | B-17 | People: company org chart page, allocation across projects, support roles and contacts per project, vacancies, 21/10/2026 interim reporting lines, HR review of titles not on the allowed list | Setup and Team | Idea | HR | release-log .119 "Open" |
 | B-18 | Ground-Up Excel and role leads: leads for Commissioning (Engineering) and Engineering; hours per line or dollars only; sample R01/R02 and BoP SCADA CBS | Setup and Team | Needs decision | B-01 | designs.md, "Open" under the teams design |
+| B-19 | S1 CMT gaps and parity: What CMT does today, what PMs need that it lacks, the parity test for retiring it. | Cost | Spec | none | docs/specs/00-purpose-and-decisions.md |
+| B-20 | S2 Remove manual data handling: The list of manual steps today and how PMT removes each. | Cost | Spec | none | docs/specs/00-purpose-and-decisions.md |
+| B-21 | S3 Month-end close flow: Pronto load and check, reforecast, accruals, in a measurable time. | Cost | Spec | none | docs/specs/00-purpose-and-decisions.md |
+| B-22 | S4 Claims and variations | Revenue | Spec | none | docs/specs/00-purpose-and-decisions.md |
+| B-23 | S5 Risk and allowances | Cost | Spec | none | docs/specs/00-purpose-and-decisions.md |
+| B-24 | S6 Reports: EOM, then PMR, PSR. | PMO and Reporting | Spec | none | docs/specs/00-purpose-and-decisions.md |
+| B-25 | S7 Project setup: Template, CRM start, contract and CBS load. | Setup and Team | Spec | none | docs/specs/00-purpose-and-decisions.md |
+| B-26 | S8 Team and resourcing | Setup and Team | Spec | none | docs/specs/00-purpose-and-decisions.md |
+| B-27 | S9 Schedule ownership | Cost | Spec | none | docs/specs/00-purpose-and-decisions.md |
+| B-28 | S10 Roles and the hub: What each role sees and does, and working together; implements M14. | Platform | Spec | B-29 | docs/specs/00-purpose-and-decisions.md |
+| B-29 | S11 Deployment: Local sync to shared server, with IT. | Platform | Spec | B-28 | docs/specs/00-purpose-and-decisions.md |
+| B-30 | S12 Gates and portfolio | PMO and Reporting | Spec | none | docs/specs/00-purpose-and-decisions.md |
 
 Also waiting on Vincent rather than on a build (see the Next step lines in `docs/threads.md`): trying releases on real Wandoan data,
 a real subcontract template and timesheet, a real Pronto GL export, a PMR and PSR sample, and the Copilot Studio agent decision (thread 13).
